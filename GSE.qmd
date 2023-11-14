@@ -9,8 +9,8 @@ editor: visual
 ## Libraries
 
 ```{r}
-#|echo:true
-#|eval:true
+#| echo: true
+#| eval: true
 
 library(GEOquery)
 library(tidyverse)
@@ -19,32 +19,34 @@ library(tidyverse)
 ## Loading data
 
 ```{r}
-#|echo:false
-#|eval:true
+#| echo: false
+#| eval: true
+#| message: false
+
 gse <- getGEO('GSE39833', GSEMatrix = FALSE)
 ```
 
 ## Making a list GSM lists
 
 ```{r}
-#|echo:true
-#|eval:true
+#| echo: true
+#| eval: true
 gsmlist = (GSMList(gse))
 ```
 
 ## Extract probe IDs from the platform data
 
 ```{r}
-#|echo:true
-#|eval:true
+#| echo: true
+#| eval: true
 probesets <- Table(GPLList(gse)[[1]])$ID
 ```
 
 ## Create a matrix with expression values
 
 ```{r}
-#|echo:false
-#|eval:true
+#| echo: false
+#| eval: true
 data_matrix <- do.call('cbind', lapply(gsmlist, function(x) {
   tab <- Table(x)
   mymatch <- match(probesets, tab$ID_REF)
@@ -56,16 +58,16 @@ data_matrix <- apply(data_matrix, 2, function(x) {as.numeric(as.character(x))})
 ## Creating log2 matrix
 
 ```{r}
-#|echo:false
-#|eval:true
+#| echo: false
+#| eval: true
 log2_matrix <- log2(data_matrix)
 ```
 
 ## Creating Expression Set For standard dataset
 
 ```{r}
-#|echo:false
-#|eval:true
+#| echo: false
+#| eval: true
 
 # Load the Biobase package
 require(Biobase)
@@ -91,8 +93,8 @@ eset
 ## Creating Expression Set For log2 dataset
 
 ```{r}
-#|echo:false
-#|eval:true
+#| echo: false
+#| eval: true
 
 # Load the Biobase package
 require(Biobase)
