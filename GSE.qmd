@@ -117,6 +117,18 @@ log2_eset <- new('ExpressionSet', exprs = log2_matrix, phenoData = pheno)
 log2_eset
 ```
 
+## Deletion of intermediate files
+
+```{r}
+#| echo: false
+#| eval: true
+
+remove(gsmlist)
+remove(pdata)
+remove(pheno)
+remove(probesets)
+```
+
 ## Citation
 
 ```{r}
