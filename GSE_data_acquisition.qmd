@@ -4,14 +4,16 @@ format: html
 editor: visual
 ---
 
-# GSE39833 Data download
+Data pages :
 
-Data page : <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE39833>
+<https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE39833>
+
+<https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL14767>
 
 ## Libraries
 
 ```{r}
-#| echo: true
+#| echo: false
 #| eval: true
 
 library(GEOquery)
@@ -21,12 +23,12 @@ library(tidyverse)
 ## Loading data
 
 ```{r}
-#| echo: false
+#| echo: true
 #| eval: true
 #| message: false
 
 gse <- getGEO('GSE39833', GSEMatrix = FALSE)
-gpl <- getGEO("GPL14767",GSEMatrix=FALSE)
+gpl <- getGEO('GPL14767',GSEMatrix=FALSE)
 ```
 
 ## Making a list GSM lists
@@ -45,110 +47,53 @@ gsmlist = (GSMList(gse))
 probesets <- Table(GPLList(gse)[[1]])$ID
 ```
 
-## Create a matrix with expression values
-
-```{r}
-#| echo: false
-#| eval: true
-data_matrix <- do.call('cbind', lapply(gsmlist, function(x) {
-  tab <- Table(x)
-  mymatch <- match(probesets, tab$ID_REF)
-  return(tab$VALUE[mymatch])
-}))
-data_matrix <- apply(data_matrix, 2, function(x) {as.numeric(as.character(x))})
-```
-
-## Creating log2 matrix
-
-```{r}
-#| echo: false
-#| eval: true
-log2_matrix <- log2(data_matrix)
-```
-
-## Creating Expression Set For standard dataset
-
-```{r}
-#| echo: false
-#| eval: true
-
-# Load the Biobase package
-require(Biobase)
-
-# Set row and column names for the data matrix
-rownames(data_matrix) <- probesets
-colnames(data_matrix) <- names(gsmlist)
-
-# Create a sample metadata dataframe
-pdata <- data.frame(samples = names(gsmlist))
-rownames(pdata) <- names(gsmlist)
-
-# Create an AnnotatedDataFrame for sample metadata
-pheno <- as(pdata, "AnnotatedDataFrame")
-
-# Create an ExpressionSet object with the processed data
-eset <- new('ExpressionSet', exprs = data_matrix, phenoData = pheno)
-
-# Display the resulting ExpressionSet
-eset
-```
-
-## Creating Expression Set For log2 dataset
-
-```{r}
-#| echo: false
-#| eval: true
-
-# Load the Biobase package
-require(Biobase)
-
-# Set row and column names for the data matrix
-rownames(log2_matrix) <- probesets
-colnames(log2_matrix) <- names(gsmlist)
-
-# Create a sample metadata dataframe
-pdata <- data.frame(samples = names(gsmlist))
-rownames(pdata) <- names(gsmlist)
-
-# Create an AnnotatedDataFrame for sample metadata
-pheno <- as(pdata, "AnnotatedDataFrame")
-
-# Create an ExpressionSet object with the processed data
-log2_eset <- new('ExpressionSet', exprs = log2_matrix, phenoData = pheno)
-
-# Display the resulting ExpressionSet
-log2_eset
-```
-
-## Adding gene annotations
-
-```{r}
-#| echo: false
-#| eval: true
-gsmlist = Filter(function(gsm) {Meta(gsm)$platform_id=='GPL96'},GSMList(gse))
-```
-
 We found out that for some reason ID,s are not migrated, so we decided to acquire them directly
 
 ## ID data table
 
 ```{r}
-#| echo: false
-#| eval: true
-
+#| echo: true 
+#| eval: true  
 id_gse <- gpl@dataTable@table
+```
+
+## Create a matrix with expression values
+
+```{r}
+#| echo: true
+#| eval: true
+data_raw <- do.call('cbind', lapply(gsmlist, function(x) {
+  tab <- Table(x)
+  mymatch <- match(probesets, tab$ID_REF)
+  return(tab$VALUE[mymatch])
+}))
+data_raw <- apply(data_raw, 2, function(x) {as.numeric(as.character(x))})
+```
+
+## Adding ID to Data
+
+```{r}
+#| echo: true
+#| eval: true 
+data_final <- as.data.frame(data_raw)
+data_final <- data_final |>   
+  mutate(ID = row_number()) |>   
+  select(ID, everything())  
+data_final <- merge(id_gse, data_final, by = "ID")
 ```
 
 ## Deletion of intermediate files
 
 ```{r}
-#| echo: false
+#| echo: true
 #| eval: true
 
 remove(gsmlist)
-remove(pdata)
-remove(pheno)
 remove(probesets)
+remove(id_gse)
+remove(data_raw)
+remove(gpl)
+remove(gse)
 ```
 
 ## Citation
