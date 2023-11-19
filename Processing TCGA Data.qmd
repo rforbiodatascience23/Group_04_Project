@@ -4,56 +4,99 @@ format: html
 editor: visual
 ---
 
-## Working with miRNA dataset
+## Loading libraries
 
 ```{r}
-miRNA_reads <- miRNA_data|>
-  select(1, matches("reads_per_million"))
+library(edgeR)
+library(tibble)
+library(statmod)
 ```
+
+## Preprocessing of miRNA dataset
+
+Selecting the columns with reads per million and editing the names. Names editing is required to make them matching the IDs of cancer and normal tissues in two lists, created in the TCGA_data_retrieval code (id_cancer_patients_cancer and id_cancer_patients_normal).
 
 ```{r}
-miRNA_list_1 <- miRNA_reads %>%
-  arrange(desc(.[[2]])) |>
-  head(15) |>
-  pull(miRNA_ID)
+miRNA_reads <- miRNA_data |>
+  select(1, matches("reads_per_million")) 
 
-miRNA_list_2 <- miRNA_reads %>%
-  arrange(desc(.[[3]])) |>
-  head(15) |>
-  pull(miRNA_ID)
+columns_to_rename <- names(miRNA_reads)[-1]
 
-miRNA_list_3 <- miRNA_reads %>%
-  arrange(desc(.[[4]])) |>
-  head(15) |>
-  pull(miRNA_ID)
+# conversion of a pattern "TCGA-NH-A6GC-01A-12H-A41D-13" into "TCGA-NH-A6GC-01A-12H"
+miRNA_reads <- miRNA_reads |>
+  rename_at(columns_to_rename, ~substr(., nchar(.) - 27, nchar(.) - 8))
 ```
+
+Creating a meta dataset that will indicate the tissue type for each of the TCGA IDs.
+
+```{metadata <- tibble(}
+  ID = c(id_cancer_patients_cancer, id_cancer_patients_normal),
+  Status = c(rep("Cancer", length(id_cancer_patients_cancer)), 
+             rep("Normal", length(id_cancer_patients_normal)))
+)
+```
+
+Log2 transformation of data.
 
 ```{r}
-Reduce(intersect, list(miRNA_list_1, miRNA_list_2, miRNA_list_3))
+miRNA_log <- miRNA_reads |>
+  mutate(across(where(is.numeric), ~log2(. + 1)))
 ```
+
+## edgeR
+
+Subsetting the data into datasets necessary for edgeR processing.
 
 ```{r}
-library(ggrepel)
-col_name <- colnames(miRNA_reads)[2]
+miRNA_ids <- miRNA_log[, 1]
+expression_data <- miRNA_log[, -1]
 
-miRNA_reads %>%
-  arrange(desc(.[[2]])) |>
-  slice_head(n = 100) |>
-  mutate(Significance = ifelse(row_number() <= 15, "Yes", "No")) |>
-  ggplot(aes(x = miRNA_ID, 
-             y = !!sym(col_name), 
-             col = Significance)) +
-  geom_point() + 
-  labs(x = "miRNA IDs",
-       y = "Reads per million",
-       title = "miRNA reads",
-       subtitle = paste("Sample -", 
-                        substr(col_name, nchar(col_name) - 27, nchar(col_name))
-                        )) +
-  geom_text_repel(data = . %>% filter(Significance == "Yes"),
-                  aes(label = miRNA_ID)) +
-  theme(legend.position = "none")
+# NA values were substituted with 0, as they cannot be normalised by calcNormFactors() function in edgeR
+expression_data <- replace(expression_data, is.na(expression_data), 0)
+
+# creating an edgeR object, with the counts and information on the genes (ID and length)
+y <- DGEList(counts = expression_data, genes = miRNA_ids)
+
+# normalization step
+y <- calcNormFactors(y)
+y$samples
 ```
+
+Some of the samples that were requested by using the lists "id_cancer_patients" do not have expession data. The metadata that was composed from two lists should therefore be filtered to include the IDs that contain information about the expression.
+
+```{r}
+list <- colnames(expression_data)
+
+metadata <- metadata |>
+  filter(ID %in% list)
+```
+
+Creating a design matrix that will compare groups "Cancer" and "Normal" that are indicated in a column "Status" in a metadata dataframe.
+
+```{r}
+design <- model.matrix(~ Status, data = metadata)
+rownames(design) <- y$samples[, 0]
+```
+
+In the next code chunk, the following actions are performed:
+
+1\) **Estimation of a common dispersion (across all genes) and tagwise (gene-specific) dispersions**. It is recommended to do both, for a proper capturing of the variability in gene expression data. It leads to more reliable and biologically meaningful results when performing the differential gene expression analysis.
+
+2\) **Fitting of a quasi-likelihood (QL) negative binomial model** to the data. It is designed for count data, which is encountered in RNA-seq experiments.
+
+3\) Performance of a **quasi-likelihood F-test** on the fitted QL model. It allows to assess the significance of differences in gene expression between two conditions (cancer and normal tissues). F-test generates adjusted p-values to assess the significance of the changes in genes expression.
+
+4\) **`topTags`** is used to **extract the top genes**, based on statistical significance from the results of a differential expression analysis. It takes the output of glmQLFTest and returns a list of top-ranked genes, based on the calculated values that indicate the significance.
+
+```{r}
+y <- estimateDisp(y, design)
+fit <- glmQLFit(y, design, robust = TRUE)
+qlt <- glmQLFTest(fit)
+
+topgenes <- topTags(qlt, n = dim(miRNA_reads)[[1]])
+```
+
+I'll work on the graphs after having a break :)
 
 ## Working with mRNA dataset
 
