@@ -4,6 +4,12 @@ format: html
 editor: visual
 ---
 
+Data page :
+
+https://portal.gdc.cancer.gov/projects/TCGA-COAD
+
+Analyte.tsv was retrieved from the "Biospecimen" archive.
+
 ## Loading libraries
 
 ```{r}
@@ -15,8 +21,6 @@ library(stringr)
 Obtaining the IDs of the patients for whom the RNA expression was registered:
 
 ```{r}
-setwd("/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project")
-
 analyte <- read.delim("analyte.tsv")
 
 RNA_samples <- subset(analyte, analyte_type == "RNA")
@@ -111,4 +115,8 @@ mRNA_data <- retrieve_and_prepare_data(
   directory_prefix = "samples_mRNA",
   use_prepare = FALSE  # Do not use GDCprepare for mRNA data
 )
+```
+
+```{r}
+print(citation("TCGAbiolinks"), bibtex=TRUE)
 ```
