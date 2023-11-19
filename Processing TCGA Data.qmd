@@ -1,0 +1,90 @@
+---
+title: "Processing TCGA data"
+format: html
+editor: visual
+---
+
+## Working with miRNA dataset
+
+```{r}
+miRNA_reads <- miRNA_data|>
+  select(1, matches("reads_per_million"))
+```
+
+```{r}
+miRNA_list_1 <- miRNA_reads %>%
+  arrange(desc(.[[2]])) |>
+  head(15) |>
+  pull(miRNA_ID)
+
+miRNA_list_2 <- miRNA_reads %>%
+  arrange(desc(.[[3]])) |>
+  head(15) |>
+  pull(miRNA_ID)
+
+miRNA_list_3 <- miRNA_reads %>%
+  arrange(desc(.[[4]])) |>
+  head(15) |>
+  pull(miRNA_ID)
+```
+
+```{r}
+Reduce(intersect, list(miRNA_list_1, miRNA_list_2, miRNA_list_3))
+```
+
+```{r}
+library(ggrepel)
+col_name <- colnames(miRNA_reads)[2]
+
+miRNA_reads %>%
+  arrange(desc(.[[2]])) |>
+  slice_head(n = 100) |>
+  mutate(Significance = ifelse(row_number() <= 15, "Yes", "No")) |>
+  ggplot(aes(x = miRNA_ID, 
+             y = !!sym(col_name), 
+             col = Significance)) +
+  geom_point() + 
+  labs(x = "miRNA IDs",
+       y = "Reads per million",
+       title = "miRNA reads",
+       subtitle = paste("Sample -", 
+                        substr(col_name, nchar(col_name) - 27, nchar(col_name))
+                        )) +
+  geom_text_repel(data = . %>% filter(Significance == "Yes"),
+                  aes(label = miRNA_ID)) +
+  theme(legend.position = "none")
+```
+
+## Working with mRNA dataset
+
+Should be edited after obtaining a proper mRNA data from the previous code!
+
+```{r}
+RNA_1 <- read.delim("~/Desktop/DTU/R_for_bio_data_science/lab_10_Project/samples_mRNA_TCGA-COAD/TCGA-COAD/Transcriptome_Profiling/Gene_Expression_Quantification/6ecac4ca-88bc-421a-bdb6-ed0868b03e6c/f4535f36-11ce-4dd8-8337-5158b682d85c.rna_seq.augmented_star_gene_counts.tsv", comment.char="#")
+```
+
+```{r}
+RNA_1 <- RNA_1 |>
+  filter(substr(gene_id, 1, 4) == "ENSG")
+```
+
+```{r}
+RNA1_sorted <- RNA_1 |> 
+  arrange(desc(fpkm_uq_unstranded))
+```
+
+```{r}
+RNA1_sorted |>
+  slice_head(n = 100) |>
+  mutate(Significance = ifelse(row_number() <= 15, "Yes", "No")) |>
+  ggplot(aes(x = gene_name, 
+             y = fpkm_uq_unstranded, 
+             col = Significance)) +
+  geom_point() + 
+  labs(x = "RNA IDs",
+       y = "FPKM-UQ reads",
+       title = "RNA reads") +
+  geom_text_repel(data = . %>% filter(Significance == "Yes"),
+                  aes(label = gene_name)) +
+  theme(legend.position = "none")
+```
