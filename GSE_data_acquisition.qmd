@@ -75,11 +75,16 @@ data_raw <- apply(data_raw, 2, function(x) {as.numeric(as.character(x))})
 ```{r}
 #| echo: true
 #| eval: true 
-data_final <- as.data.frame(data_raw)
-data_final <- data_final |>   
-  mutate(ID = row_number()) |>   
-  select(ID, everything())  
-data_final <- merge(id_gse, data_final, by = "ID")
+
+data_final <- id_gse |>
+  merge(data_raw |> 
+        as.data.frame() |> 
+        mutate(ID = row_number()) |> 
+        select(ID, everything()), by = "ID") |>
+        filter(!is.na(`PROBE NAME`)) |>
+        select(ID, everything())
+
+
 ```
 
 ## Deletion of intermediate files
