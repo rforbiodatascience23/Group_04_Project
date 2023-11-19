@@ -43,6 +43,10 @@ miRNA_log <- miRNA_reads |>
   mutate(across(where(is.numeric), ~log2(. + 1)))
 ```
 
+```{r}
+miRNA_log
+```
+
 ## edgeR
 
 Subsetting the data into datasets necessary for edgeR processing.
@@ -96,7 +100,41 @@ qlt <- glmQLFTest(fit)
 topgenes <- topTags(qlt, n = dim(miRNA_reads)[[1]])
 ```
 
-I'll work on the graphs after having a break :)
+```{r}
+top_genes <- topgenes$table$genes
+```
+
+## Visualisation
+
+```{r}
+# choosing miRNAs of interest and pivoting miRNA_log table 
+miRNA_log_long <- miRNA_log |>
+  filter(miRNA_ID %in% top_genes) |>
+  pivot_longer(
+    cols = -miRNA_ID,
+    names_to = "TCGA_ID",
+    values_to = "log_reads"
+  )
+```
+
+```{r}
+# making the TCGA IDs column name in metadata matching the miRNA_log_long
+colnames(metadata)[colnames(metadata) == "ID"] <- "TCGA_ID"
+```
+
+```{r}
+# doesn't work ???
+left_join(miRNA_log_long, metadata, by = "TCGA_ID")
+```
+
+```{r}
+# still need to work on the cancer / normal data :( Can't figure out at all how to add this information from metadata.. 
+miRNA_log_long |>
+  ggplot(aes(x = miRNA_ID,
+             y = log_reads,
+             col = TCGA_ID)) +
+  geom_point()
+```
 
 ## Working with mRNA dataset
 
