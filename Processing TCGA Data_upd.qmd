@@ -11,7 +11,7 @@ library(edgeR)
 library(tibble)
 library(statmod)
 library(ggrepel)
-library(dplyr)
+library(tidyverse)
 library(stringr)
 ```
 
@@ -172,10 +172,6 @@ subset_top |>
   labs(title = "Log fold changes of 25 mostly differentially expressed miRNAs", 
        x = "miRNA IDs",
        y = "log Fold Change")
-```
-
-```{r}
-miRNA_log_long
 ```
 
 ## Working with mRNA dataset
