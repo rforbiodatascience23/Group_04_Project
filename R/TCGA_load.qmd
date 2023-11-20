@@ -103,7 +103,7 @@ retrieve_and_prepare_data <- function(
 ```
 
 ```{r}
-miRNA_data <- retrieve_and_prepare_data(
+miRNA_data_cancer <- retrieve_and_prepare_data(
   project = "TCGA-COAD",
   data_category = "Transcriptome Profiling",
   data_type = "miRNA Expression Quantification",
@@ -111,6 +111,21 @@ miRNA_data <- retrieve_and_prepare_data(
   id_cancer_patients = id_cancer_patients,
   directory_prefix = "samples_miRNA"
 )
+```
+
+```{r}
+miRNA_data_normal <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients_normal,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+```{r}
+miRNA_data <- bind_rows(miRNA_data_cancer, miRNA_data_normal)
 ```
 
 ```{r}
