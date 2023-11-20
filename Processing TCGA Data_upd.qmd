@@ -12,6 +12,7 @@ library(tibble)
 library(statmod)
 library(ggrepel)
 library(dplyr)
+library(stringr)
 ```
 
 The current code is processing the datasets obtained from the TCGA data retrieval file.
@@ -127,9 +128,19 @@ miRNA_log_long <- miRNA_log |>
 ```
 
 ```{r}
-# making the TCGA IDs column name in metadata matching the miRNA_log_long
+# making the TCGA IDs column name in metadata about the tissue type matching the miRNA_log_long
 colnames(metadata)[colnames(metadata) == "ID"] <- "TCGA_ID"
 miRNA_log_long <- merge(miRNA_log_long, metadata, by="TCGA_ID")
+```
+
+```{r}
+# merging the miRNA data with the clinical metadata about the patients
+colnames(miRNA_metadata)[colnames(miRNA_metadata) == "case_submitter_id"] <- "TCGA_ID"
+
+miRNA_log_long <- miRNA_log_long |>
+  mutate(TCGA_ID = str_sub(TCGA_ID, nchar(TCGA_ID) - 20, nchar(TCGA_ID) - 8))
+
+miRNA_log_long <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
 ```
 
 ```{r}
@@ -144,7 +155,8 @@ miRNA_log_long |>
     hjust = 1),
     plot.title = element_text(
       size = 12, 
-      angle = 0)) 
+      angle = 0)) +
+  facet_wrap(~ajcc_pathologic_stage)
 ```
 
 ```{r}
@@ -163,8 +175,7 @@ subset_top |>
 ```
 
 ```{r}
-subset_top |>
-  filter (genes == "hsa-let-7d")
+miRNA_log_long
 ```
 
 ## Working with mRNA dataset
@@ -199,4 +210,8 @@ RNA1_sorted |>
   geom_text_repel(data = . %>% filter(Significance == "Yes"),
                   aes(label = gene_name)) +
   theme(legend.position = "none")
+```
+
+```{r}
+miRNA_metadata
 ```
