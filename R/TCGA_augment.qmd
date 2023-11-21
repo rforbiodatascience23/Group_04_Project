@@ -21,17 +21,24 @@ library(tidyverse)
 library(stringr)
 ```
 
-## Fetch dataset
+## Fetch datasets
 
 ```{r}
+#miRNA
 miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
 miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
+
+#mRNA
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
 ```
+
+## miRNA data pre-processing
 
 Creating a meta dataset that will indicate the tissue type for each of the TCGA IDs:
 
 1\) Extracting column names from the created `miRNA_data`.\
-2) Identifying the tissue type by the ID numbering and defining the result as a metadata for the patients IDs.
+2) Identifying the tissue type by ID numbering and defining the result as a metadata for the patients IDs.
 
 ```{r}
 column_names <- colnames(miRNA_data)[-1]
@@ -39,7 +46,7 @@ IDs <- tibble(TCGA_ID = column_names)
 ```
 
 ```{r}
-metadata_id_patients <- IDs |>
+metadata_id_patients_miRNA <- IDs |>
   mutate(tissue_type = str_sub(TCGA_ID, -3, -3)) |>
   mutate(
     Status = case_when(tissue_type == 0 ~ "cancer",
@@ -50,11 +57,7 @@ metadata_id_patients <- IDs |>
   select(-tissue_type)
 ```
 
-## Preprocessing of miRNA dataset
-
-Selecting the columns with reads per million and editing the names. Names editing is required to make them matching the IDs of cancer and normal tissues in two lists, created in the TCGA_data_retrieval code (id_cancer_patients_cancer and id_cancer_patients_normal).
-
-Log2 transformation of the data.
+Log2 transformation.
 
 ```{r}
 miRNA_log <- miRNA_data |>
@@ -66,33 +69,73 @@ miRNA_log <- as.data.frame(miRNA_log) |>
   ungroup()
 ```
 
+## mRNA data pre-processing
+
+Setting "Status" from the existing "definition" column in `mRNA_metadata`.
+
+```{r}
+mRNA_metadata <- mRNA_metadata |>
+  mutate(Status = str_extract(definition, "\\w+$")) |>
+  arrange(Status) |>
+  select(-definition)
+```
+
+Creating metadata for the patients IDs.
+
+```{r}
+metadata_id_patients_mRNA <- mRNA_metadata |>
+  select(sample, Status)
+```
+
+Log2 transformation and making mRNA dataset similar to the miRNA dataset to apply the further functions with edgeR processing.
+
+```{r}
+mRNA_log <- mRNA_data |>
+  mutate(across(where(is.numeric), ~log2(. + 1))) |>
+  mutate(genes = row.names(mRNA_data)) |>
+  as_tibble() |>
+  select(genes, everything())
+
+mRNA_log <- as.data.frame(mRNA_log) |>
+  group_by(genes) |>
+  summarise(across(everything(), ~if(all(is.na(.))) NA else na.omit(.))) |>
+  ungroup()
+```
+
 ## edgeR
 
-Subsetting the data into datasets necessary for edgeR processing.
+#### Function to create normalized expression datasets.
 
 ```{r}
-miRNA_ids <- miRNA_log[, 1]
-expression_data <- miRNA_log[, -1]
+process_data <- function(data) {
+  # Extract IDs and expression data
+  ids <- data[, 1]  # IDs are in the first column
+  expression_data <- data[, -1]
 
-# NA values were substituted with 0, as they cannot be normalised by calcNormFactors() function in edgeR
-expression_data <- replace(expression_data, is.na(expression_data), 0)
+  # Replace NA values with 0
+  expression_data <- replace(expression_data, is.na(expression_data), 0)
 
-# creating an edgeR object, with the counts and information on the genes (ID and length)
-y <- DGEList(counts = expression_data, genes = miRNA_ids)
+  # Create an edgeR object
+  y <- DGEList(counts = expression_data, genes = ids)
 
-# normalization step
-y <- calcNormFactors(y)
-y$samples
+  # Normalization step
+  y <- calcNormFactors(y)
+
+  # Return the result
+  return(y)
+}
 ```
-
-Creating a design matrix that will compare groups "Cancer" and "Normal" that are indicated in a column "Status" in a metadata dataframe.
 
 ```{r}
-design <- model.matrix(~ Status, data = metadata_id_patients)
-rownames(design) <- y$samples[, 0]
+mRNA_y <- process_data(mRNA_log)
+miRNA_y <- process_data(miRNA_log)
 ```
 
-In the next code chunk, the following actions are performed:
+#### Function to run edgeR differential expression analysis.
+
+In the next code chunk, a function for an edgeR processing is created. Firstly, the design matrix is shaped, that will compare groups "Cancer" and "Normal" that are indicated in a column "Status" in metadata dataframes.
+
+Secondly, the following actions are performed:
 
 1\) **Estimation of a common dispersion (across all genes) and tagwise (gene-specific) dispersions**. It is recommended to do both, for a proper capturing of the variability in gene expression data. It leads to more reliable and biologically meaningful results when performing the differential gene expression analysis.
 
@@ -100,42 +143,103 @@ In the next code chunk, the following actions are performed:
 
 3\) Performance of a **quasi-likelihood F-test** on the fitted QL model. It allows to assess the significance of differences in gene expression between two conditions (cancer and normal tissues). F-test generates adjusted p-values to assess the significance of the changes in genes expression.
 
-4\) **`topTags`** is used to **extract the top genes**, based on statistical significance from the results of a differential expression analysis. It takes the output of glmQLFTest and returns a list of top-ranked genes, based on the calculated values that indicate the significance.
+4\) **`topTags`** is used to **extract the top genes**, based on statistical significance from the results of a differential expression analysis. It takes the output of `glmQLFTest` and returns a list of top-ranked genes, based on the calculated values that indicate the significance.
 
 ```{r}
-y <- estimateDisp(y, design)
-fit <- glmQLFit(y, design, robust = TRUE)
-qlt <- glmQLFTest(fit)
-
-topgenes <- topTags(qlt, n = dim(miRNA_data)[[1]])
+run_edgeR_analysis <- function(data_y,
+                               design_formula,
+                               metadata, 
+                               feature_data) {
+  # Create model matrix
+  # design formula is the same in this case, but in case of other names, it can be changed
+  design <- model.matrix(as.formula(design_formula), 
+                         data = metadata)
+  
+  # Set row names
+  rownames(design) <- data_y$samples[, 0]
+  
+  # Estimate dispersion
+  data_y <- estimateDisp(data_y, design)
+  
+  # Fit model
+  fit <- glmQLFit(data_y, design, robust = TRUE)
+  
+  # Likelihood ratio test
+  qlt <- glmQLFTest(fit)
+  
+  # Getting top genes and saving table in the variable. 
+  # The dimension of the original dataset is applied.
+  topgenes <- topTags(qlt, n = dim(feature_data)[[1]])
+  
+  return(topgenes)
+}
 ```
 
-Saving the statistics information about the differential expression into `top_genes_stat` and gene names into `top_genes` to fitler them in the miRNA dataset for the further analysis.
+Saving the statistics information about the differential expression into `top_genes_stat` and gene names into `top_genes` to filter them in the datasets for the further analysis.
 
 ```{r}
-top_genes_stat <- topgenes$table 
-top_genes <- top_genes_stat$genes
+# mRNA data
+mRNA_edgeR <- run_edgeR_analysis(mRNA_y, "~ Status", metadata_id_patients_mRNA, mRNA_data)
+mRNA_top_genes_stat <- mRNA_edgeR$table 
+mRNA_top_genes <- mRNA_top_genes_stat$genes
+
+# miRNA data
+miRNA_edgeR <- run_edgeR_analysis(miRNA_y, "~ Status", metadata_id_patients_miRNA, miRNA_data)
+miRNA_top_genes_stat <- miRNA_edgeR$table 
+miRNA_top_genes <- miRNA_top_genes_stat$genes
+```
+
+#### Function to pivot the datasets for the further merging with metadata.
+
+```{r}
+pivot_and_filter <- function(data, 
+                             id_column, 
+                             top_genes_list) {
+  filtered_data <- data |>
+    filter({{ id_column }} %in% top_genes_list) |>
+    pivot_longer(
+      cols = -{{ id_column }},
+      names_to = "TCGA_ID",
+      values_to = "log_reads"
+    )
+  
+  return(filtered_data)
+}
 ```
 
 ```{r}
-miRNA_log_long <- miRNA_log |>
-  filter(miRNA_ID %in% top_genes) |>
-  pivot_longer(
-    cols = -miRNA_ID,
-    names_to = "TCGA_ID",
-    values_to = "log_reads"
-  )
+mRNA_log_long <- pivot_and_filter(mRNA_log, genes, mRNA_top_genes)
+miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
 ```
 
-Merging expression information with the tissue types from `metadata_id_patients`.
+-   mRNA
 
 ```{r}
-miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients, by="TCGA_ID")
+mRNA_metadata <- mRNA_metadata |>
+  rename(barcode = "TCGA_ID")
+
+mRNA_log_long_full <- merge(mRNA_log_long, mRNA_metadata, by="TCGA_ID")
+```
+
+Selecting columns of interest for the analysis.
+
+```{r}
+mRNA_log_long_full <- mRNA_log_long_full |>
+  select(genes, log_reads, patient, Status, ajcc_pathologic_stage, alcohol_history,
+         gender, vital_status, age_at_index, days_to_death)
+```
+
+-   miRNA
+
+Firstly, merging expression information with the tissue types from `metadata_id_patients`.
+
+```{r}
+miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients_miRNA, by="TCGA_ID")
 miRNA_log_long <- miRNA_log_long |>
   mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
 ```
 
-Finally, merging with long data with the clinical information from the `miRNA_metadata` for the further analysis.
+Secondly, merging long data with the clinical information from the `miRNA_metadata`.
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
@@ -145,37 +249,55 @@ miRNA_metadata <- miRNA_metadata |>
 miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
 ```
 
-## Gene names as row names for expression data
+Selecting columns of interest for the analysis.
+
+```{r}
+miRNA_log_long_full <- miRNA_log_long_full |>
+  select(miRNA_ID, log_reads, TCGA_ID, Status, ajcc_pathologic_stage,
+         gender, age_at_index, days_to_death)
+```
+
+## Gene names as row names for expression datasets
 
 ```{r}
 row_names <- miRNA_log$miRNA_ID
 miRNA_log <- miRNA_log[,-1]
 rownames(miRNA_log) <- row_names
+
+row_names <- mRNA_log$genes
+mRNA_log <- mRNA_log[,-1]
+rownames(mRNA_log) <- row_names
 ```
 
 ## Clean up environment
 
 ```{r}
-rm(design)
-rm(expression_data)
-rm(fit)
 rm(IDs)
-rm(metadata_id_patients)
+rm(metadata_id_patients_miRNA)
+rm(metadata_id_patients_mRNA)
 rm(miRNA_data)
+rm(mRNA_data)
+rm(miRNA_edgeR)
+rm(mRNA_edgeR)
 rm(miRNA_log_long)
+rm(mRNA_log_long)
 rm(miRNA_metadata)
-rm(qlt)
-rm(top_genes)
-rm(y)
-rm(topgenes)
+rm(mRNA_metadata)
+rm(miRNA_y)
+rm(mRNA_y)
 rm(column_names)
-rm(miRNA_ids)
+rm(miRNA_top_genes)
+rm(mRNA_top_genes)
 ```
 
 ## Saving datasets for analysing
 
 ```{r}
-saveRDS(miRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDS"))
-saveRDS(top_genes_stat, file = paste0(own_path, "/group_04_project/data/top_genes_stat.RDS"))
+saveRDS(miRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/miRNA_aug.RDs"))
+saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDs"))
 saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/data/miRNA_log.RDS"))
+
+saveRDS(mRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/mRNA_aug.RDs"))
+saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDs"))
+saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/data/mRNA_log.RDS"))
 ```

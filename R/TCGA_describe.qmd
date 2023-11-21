@@ -1,0 +1,56 @@
+---
+title: "TCGA_describe"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+```
+
+## Fetch dataset
+
+```{r}
+mRNA_log_long_full <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDS"))
+```
+
+## Experiment description
+
+Number of patients (cancer/normal)
+
+```{r}
+ggplot(collapsed_data, aes(x = ajcc_pathologic_stage)) +
+  geom_bar() +
+  labs(x = "Categories", y = "Frequency", title = "Frequency of Cases by Category") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+Gender distribution
+
+```{r}
+collapsed_data <- mRNA_log_long_full |>
+  distinct(TCGA_ID, .keep_all = TRUE) |>
+  mutate(age_at_index = as.numeric(age_at_index))
+
+ggplot(collapsed_data, aes(x = gender, y = age_at_index, fill = gender)) +
+  geom_boxplot() +
+  labs(x = "Gender", y = "Age", title = "Distribution of Age by Gender")
+```
+
+Cancer stages
+
+```{r}
+ggplot(collapsed_data, aes(x = ajcc_pathologic_stage, fill = ajcc_pathologic_stage)) +
+  geom_bar() +
+  labs(x = "AJCC Pathologic Stage", y = "Frequency", title = "Frequency of AJCC Pathologic Stages by Status") +
+  theme(axis.text.x = element_blank())
+```

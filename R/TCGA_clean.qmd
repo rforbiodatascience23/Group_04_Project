@@ -38,15 +38,29 @@ miRNA_data <- miRNA_data |>
 
 ## Tidy miRNA metadata
 
-Add 01A values
-
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
   filter(case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12)) |>
   mutate(across(everything(), ~ifelse(. == "'--", NA, .))) |>
   select(-where(~all(is.na(.)))) |>
   group_by(case_submitter_id)
+```
 
+## Alter column data types
+
+```{r}
+miRNA_metadata <- miRNA_metadata |>
+  mutate(
+    age_at_index = as.numeric(age_at_index),
+    age_at_diagnosis = as.numeric(age_at_diagnosis),
+    days_to_birth = as.numeric(days_to_birth),
+    days_to_death = as.numeric(days_to_death),
+    days_to_diagnosis = as.numeric(days_to_diagnosis),
+    days_to_last_follow_up = as.numeric(days_to_last_follow_up),
+    year_of_birth = as.numeric(year_of_birth),
+    year_of_death = as.numeric(year_of_death),
+    year_of_diagnosis = as.numeric(year_of_diagnosis)
+         )
 ```
 
 ## Tidy mRNA data
