@@ -140,9 +140,26 @@ miRNA_metadata <- miRNA_metadata |>
 miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
 ```
 
+## Clean up environment
+
+```{r}
+rm(design)
+rm(expression_data)
+rm(fit)
+rm(IDs)
+rm(metadata_id_patients)
+rm(miRNA_data)
+rm(miRNA_log)
+rm(miRNA_log_long)
+rm(miRNA_metadata)
+rm(qlt)
+rm(top_genes)
+rm(y)
+```
+
 ## Saving datasets for analysing
 
 ```{r}
-saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDs"))
+saveRDS(miRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDs"))
 saveRDS(top_genes_stat, file = paste0(own_path, "/group_04_project/data/top_genes_stat.RDs"))
 ```
