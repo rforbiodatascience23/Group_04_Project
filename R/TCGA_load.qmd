@@ -4,11 +4,11 @@ format: html
 editor: visual
 ---
 
-Data page :
+## Data retrieval:
 
-https://portal.gdc.cancer.gov/projects/TCGA-COAD
+All data was gathered from the project TCGA-COAD from the GDC data portal: https://portal.gdc.cancer.gov/projects/TCGA-COAD
 
-*analyte.tsv* and *clinical.tsv* was retrieved from the "Biospecimen" archive.
+The two files *analyte.tsv* and *clinical.tsv* were retrieved from the "Biospecimen" archive, and further used to retrieve the read count datasets from the online data portal.
 
 ## Set Working directory
 
@@ -111,6 +111,21 @@ miRNA_data <- retrieve_and_prepare_data(
   id_cancer_patients = id_cancer_patients,
   directory_prefix = "samples_miRNA"
 )
+```
+
+```{r}
+miRNA_data <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients_normal,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+```{r}
+miRNA_data <- bind_rows(miRNA_data_cancer, miRNA_data_normal)
 ```
 
 ```{r}
