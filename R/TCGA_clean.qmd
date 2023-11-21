@@ -18,7 +18,7 @@ library(dplyr)
 library(SummarizedExperiment)
 ```
 
-## Fetch data
+## Fetch dataset
 
 ```{r}
 mRNA_all <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
@@ -33,17 +33,20 @@ miRNA_data <- miRNA_data |>
   select(-starts_with("cross-mapped")) |>
   select(-starts_with("reads_per_million")) |>
   rename_with(~gsub("^read_count_", "", .x), starts_with("read_count_")) |>
-  rename_all(~ substr(., 1, 12))
+  rename_all(~ substr(., 1, 16))
 ```
 
 ## Tidy miRNA metadata
 
+Add 01A values
+
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
-  filter(case_submitter_id %in% names(miRNA_data)[-1]) |>
+  filter(case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12)) |>
   mutate(across(everything(), ~ifelse(. == "'--", NA, .))) |>
-  select(-where(~all(is.na(.))), -treatment_type) |>
-  distinct()
+  select(-where(~all(is.na(.)))) |>
+  group_by(case_submitter_id)
+
 ```
 
 ## Tidy mRNA data
