@@ -1,0 +1,78 @@
+---
+title: "miRNA_analysis"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+library(ggrepel)
+```
+
+## Fetch dataset
+
+```{r}
+miRNA_log_long_full <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/top_genes_stat.RDS"))
+```
+
+Subsetting top 25 "log Fold Changed" genes for a better visualisation:
+
+```{r}
+top_genes_stat_subset <- top_genes_stat |>
+  arrange(desc(abs(logFC))) |>
+  head(n = 25)
+
+top_genes <- top_genes_stat_subset$genes
+```
+
+```{r}
+miRNA_log_long_full |>
+  filter(miRNA_ID %in% top_genes) |>
+  ggplot(aes(x = miRNA_ID,
+             y = log_reads,
+             col = Status)) +
+  geom_point() +
+  labs(title = "Comparison of expression of 25 top differentially expressed miRNAs \nbetween cancer and normal TCGA samples", color = "Tissue Type",
+       x = "miRNA IDs",
+       y = "Log2 expression") +
+  theme(axis.text.x = element_text(
+    angle = 45,
+    hjust = 1),
+    plot.title = element_text(
+      size = 12, 
+      angle = 0)) +
+  facet_wrap(~gender)
+```
+
+```{r}
+top_genes_stat_subset |>
+  ggplot(aes(x = genes,
+             y = logFC)) +
+  geom_point() +
+  geom_text_repel(aes(label = genes), size = 3) +
+  theme(axis.text.x = element_text(
+    angle = 45,
+    hjust = 1)) +
+  theme(axis.text.x = element_blank()) +
+  labs(title = "Log Fold Changes of 25 mostly differentially expressed miRNAs", 
+       x = "miRNA IDs",
+       y = "Log Fold Change")
+```
+
+## Clean environment
+
+```{r}
+rm(miRNA_log_long_full)
+rm(top_genes_stat)
+rm(top_genes_stat_subset)
+```
