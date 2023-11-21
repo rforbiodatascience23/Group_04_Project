@@ -211,6 +211,14 @@ mRNA_log_long <- mRNA_log_long |>
 mRNA_log_long_full <- merge(mRNA_log_long, mRNA_metadata, by="barcode")
 ```
 
+Selecting columns of interest for the analysis.
+
+```{r}
+mRNA_log_long_full <- mRNA_log_long_full |>
+  select(genes, log_reads, patient, Status, ajcc_pathologic_stage, alcohol_history,
+         gender, vital_status, age_at_index, days_to_death)
+```
+
 -    miRNA
 
 Firstly, merging expression information with the tissue types from `metadata_id_patients`.
@@ -229,6 +237,14 @@ miRNA_metadata <- miRNA_metadata |>
   mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
 
 miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
+```
+
+Selecting columns of interest for the analysis.
+
+```{r}
+miRNA_log_long_full <- miRNA_log_long_full |>
+  select(miRNA_ID, log_reads, TCGA_ID, Status, ajcc_pathologic_stage,
+         gender, age_at_index, days_to_death)
 ```
 
 ## Clean up environment
