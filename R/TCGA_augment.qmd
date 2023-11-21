@@ -7,7 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+own_path <- "/Users/mathildebechgaard"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
@@ -59,6 +59,11 @@ Log2 transformation of the data.
 ```{r}
 miRNA_log <- miRNA_data |>
   mutate(across(where(is.numeric), ~log2(. + 1)))
+
+miRNA_log <- as.data.frame(miRNA_log) |>
+  group_by(miRNA_ID) |>
+  summarise(across(everything(), ~if(all(is.na(.))) NA else na.omit(.))) |>
+  ungroup()
 ```
 
 ## edgeR
@@ -134,10 +139,18 @@ Finally, merging with long data with the clinical information from the `miRNA_me
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
-  rename(TCGA_ID = case_submitter_id) |>
+  rename(case_submitter_id = "TCGA_ID") |>
   mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
 
 miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
+```
+
+## Gene names as row names for expression data
+
+```{r}
+row_names <- miRNA_log$miRNA_ID
+miRNA_log <- miRNA_log[,-1]
+rownames(miRNA_log) <- row_names
 ```
 
 ## Clean up environment
@@ -149,7 +162,6 @@ rm(fit)
 rm(IDs)
 rm(metadata_id_patients)
 rm(miRNA_data)
-rm(miRNA_log)
 rm(miRNA_log_long)
 rm(miRNA_metadata)
 rm(qlt)
@@ -163,6 +175,7 @@ rm(miRNA_ids)
 ## Saving datasets for analysing
 
 ```{r}
-saveRDS(miRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDs"))
-saveRDS(top_genes_stat, file = paste0(own_path, "/group_04_project/data/top_genes_stat.RDs"))
+saveRDS(miRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDS"))
+saveRDS(top_genes_stat, file = paste0(own_path, "/group_04_project/data/top_genes_stat.RDS"))
+saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/data/miRNA_log.RDS"))
 ```
