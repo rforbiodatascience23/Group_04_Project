@@ -4,7 +4,14 @@ format: html
 editor: visual
 ---
 
-## Loading libraries
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Load Libraries
 
 ```{r}
 library(edgeR)
@@ -12,6 +19,13 @@ library(tibble)
 library(statmod)
 library(tidyverse)
 library(stringr)
+```
+
+## Fetch dataset
+
+```{r}
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
 ```
 
 Creating a meta dataset that will indicate the tissue type for each of the TCGA IDs:
@@ -111,7 +125,8 @@ miRNA_log_long <- miRNA_log |>
 Merging expression information with the tissue types from `metadata_id_patients`.
 
 ```{r}
-miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients, by="TCGA_ID") |>
+miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients, by="TCGA_ID")
+miRNA_log_long <- miRNA_log_long |>
   mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
 ```
 
@@ -119,7 +134,8 @@ Finally, merging with long data with the clinical information from the `miRNA_me
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
-  rename(TCGA_ID = case_submitter_id)
+  rename(TCGA_ID = case_submitter_id) |>
+  mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
 
 miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
 ```
