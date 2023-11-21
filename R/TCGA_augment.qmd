@@ -156,6 +156,8 @@ rm(qlt)
 rm(top_genes)
 rm(y)
 rm(topgenes)
+rm(column_names)
+rm(miRNA_ids)
 ```
 
 ## Saving datasets for analysing
