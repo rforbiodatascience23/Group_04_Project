@@ -35,6 +35,10 @@ top_genes_stat_subset <- top_genes_stat |>
 top_genes <- top_genes_stat_subset$genes
 ```
 
+-   Comment that the samples should be taken from cancer + normal tissues of the same patients to get a proper overview of the expr.difference
+
+-   For some genes, depending on the cancer behaviour, they might become up- or down-regulated, so this causes the spreading of some data points without a clear distinction from the normal tissues.
+
 ```{r}
 miRNA_log_long_full |>
   filter(miRNA_ID %in% top_genes) |>
@@ -55,18 +59,33 @@ miRNA_log_long_full |>
 ```
 
 ```{r}
-top_genes_stat_subset |>
-  ggplot(aes(x = genes,
-             y = logFC)) +
-  geom_point() +
-  geom_text_repel(aes(label = genes), size = 3) +
-  theme(axis.text.x = element_text(
-    angle = 45,
-    hjust = 1)) +
-  theme(axis.text.x = element_blank()) +
-  labs(title = "Log Fold Changes of 25 mostly differentially expressed miRNAs", 
-       x = "miRNA IDs",
-       y = "Log Fold Change")
+# calculate adjusted pvalue
+top_genes_stat <- top_genes_stat |>
+    mutate(
+      q.value = p.adjust(PValue),
+      significance = case_when(
+        q.value > 0.05 ~ "no",
+        q.value <= 0.05 ~ "yes"
+      )
+    )
+```
+
+```{r}
+# volcano plot
+top_genes_stat |> 
+  ggplot(aes(x = logFC,
+             y = -log10(PValue),
+             col = significance)) +
+  geom_point(alpha = 0.4) +
+  theme_minimal() +
+  labs(x = "Log Fold Change",
+       y = "-log10(p-value)",
+       title = "Top Differentially Expressed miRNAs in TCGA-COAD Samples") +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5)) +
+  geom_text_repel(data = top_genes_stat_subset,
+                  aes(label = genes),
+                      color = "black")
 ```
 
 ## Clean environment
@@ -75,4 +94,5 @@ top_genes_stat_subset |>
 rm(miRNA_log_long_full)
 rm(top_genes_stat)
 rm(top_genes_stat_subset)
+rm(top_genes)
 ```
