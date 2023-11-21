@@ -10,7 +10,6 @@ editor: visual
 library(edgeR)
 library(tibble)
 library(statmod)
-library(ggrepel)
 library(tidyverse)
 library(stringr)
 ```
