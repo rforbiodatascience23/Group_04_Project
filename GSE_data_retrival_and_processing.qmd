@@ -35,7 +35,8 @@ gpl <- gpl |>
 
 mirna_exp <- gse_data_frame |> 
   left_join(gpl, by = "ID") |> 
-  select( ,-1)
+  select( ,-1) |> 
+  relocate(where(is.numeric), .after = where(is.character))
 
 metadata <- gse_data@phenoData@data
 
