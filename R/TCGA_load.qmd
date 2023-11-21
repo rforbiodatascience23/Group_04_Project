@@ -13,7 +13,7 @@ The two files *analyte.tsv* and *clinical.tsv* were retrieved from the "Biospeci
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard"
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/_raw/"))
 ```
 
@@ -45,7 +45,7 @@ RNA_samples <- RNA_samples |>
 ## Creating a function to get the IDs of interest:
 
 ```{r}
-get_sample_ids <- function(RNA_samples_data, sample_type, num_samples = 10) {
+get_sample_ids <- function(RNA_samples_data, sample_type, num_samples) {
 
   filtered_samples <- RNA_samples_data |>
     filter(type == sample_type) |>
@@ -58,9 +58,13 @@ get_sample_ids <- function(RNA_samples_data, sample_type, num_samples = 10) {
 ```
 
 ```{r}
-id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 10)
-id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 10)
+id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 20)
+id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 20)
 id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
+
+labels <- c(rep("Normal", length(id_cancer_patients_normal)), rep("Cancer", length(id_cancer_patients_cancer)))
+
+metadata_id_patients <- data.frame(ID = id_cancer_patients, Status = labels)
 ```
 
 ## Creating a function to retrieve datasets from TCGA:
@@ -129,14 +133,14 @@ miRNA_data <- bind_rows(miRNA_data_cancer, miRNA_data_normal)
 ```
 
 ```{r}
-mRNA_all <- retrieve_and_prepare_data(
-  project = "TCGA-COAD",
-  data_category = "Transcriptome Profiling",
-  data_type = "Gene Expression Quantification",
-  workflow_type = "STAR - Counts",
-  id_cancer_patients = id_cancer_patients,
-  directory_prefix = "samples_mRNA"
-)
+# mRNA_all <- retrieve_and_prepare_data(
+#   project = "TCGA-COAD",
+#   data_category = "Transcriptome Profiling",
+#   data_type = "Gene Expression Quantification",
+#   workflow_type = "STAR - Counts",
+#   id_cancer_patients = id_cancer_patients,
+#   directory_prefix = "samples_mRNA"
+# )
 ```
 
 ```{r}
@@ -166,5 +170,5 @@ rm(id_cancer_patients_normal)
 ```{r}
 saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_load.RDS"))
 saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_load.RDS"))
-saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
+#saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
 ```

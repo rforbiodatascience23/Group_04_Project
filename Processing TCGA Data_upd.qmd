@@ -35,11 +35,14 @@ miRNA_reads <- miRNA_reads |>
 Creating a meta dataset that will indicate the tissue type for each of the TCGA IDs.
 
 ```{r}
-metadata <- tibble(
-  ID = c(id_cancer_patients_cancer, id_cancer_patients_normal),
-  Status = c(rep("Cancer", length(id_cancer_patients_cancer)), 
-             rep("Normal", length(id_cancer_patients_normal)))
-)
+# labels <- c(rep("normal", length(id_cancer_patients_normal)), rep("cancer", length(id_cancer_patients_cancer)))
+# data_frame <- data.frame(ID = id_cancer_patients, Label = labels)
+# 
+# metadata <- tibble(
+#   ID = c(id_cancer_patients_cancer, id_cancer_patients_normal),
+#   Status = c(rep("Cancer", length(id_cancer_patients_cancer)), 
+#              rep("Normal", length(id_cancer_patients_normal)))
+# )
 ```
 
 Log2 transformation of data.
@@ -47,10 +50,6 @@ Log2 transformation of data.
 ```{r}
 miRNA_log <- miRNA_reads |>
   mutate(across(where(is.numeric), ~log2(. + 1)))
-```
-
-```{r}
-miRNA_log
 ```
 
 ## edgeR
@@ -72,19 +71,24 @@ y <- calcNormFactors(y)
 y$samples
 ```
 
-Some of the samples that were requested by using the lists "id_cancer_patients" do not have expession data. The metadata that was composed from two lists should therefore be filtered to include the IDs that contain information about the expression.
+Some of the samples that were requested by using the lists "id_cancer_patients" do not have expression data. The metadata that was composed from two lists should therefore be filtered to include the IDs that contain information about the expression.
 
 ```{r}
 list <- colnames(expression_data)
 
-metadata <- metadata |>
+metadata_id_patients <- metadata_id_patients |>
   filter(ID %in% list)
+```
+
+```{r}
+# will be subsetted from the miRNA_metadata + miRNA_data
+metadata_id_patients
 ```
 
 Creating a design matrix that will compare groups "Cancer" and "Normal" that are indicated in a column "Status" in a metadata dataframe.
 
 ```{r}
-design <- model.matrix(~ Status, data = metadata)
+design <- model.matrix(~ Status, data = metadata_id_patients)
 rownames(design) <- y$samples[, 0]
 ```
 
@@ -129,8 +133,8 @@ miRNA_log_long <- miRNA_log |>
 
 ```{r}
 # making the TCGA IDs column name in metadata about the tissue type matching the miRNA_log_long
-colnames(metadata)[colnames(metadata) == "ID"] <- "TCGA_ID"
-miRNA_log_long <- merge(miRNA_log_long, metadata, by="TCGA_ID")
+colnames(metadata_id_patients)[colnames(metadata_id_patients) == "ID"] <- "TCGA_ID"
+miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients, by="TCGA_ID")
 ```
 
 ```{r}
@@ -141,6 +145,11 @@ miRNA_log_long <- miRNA_log_long |>
   mutate(TCGA_ID = str_sub(TCGA_ID, nchar(TCGA_ID) - 20, nchar(TCGA_ID) - 8))
 
 miRNA_log_long <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
+```
+
+```{r}
+# run
+saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/data/miRNA_log_long.RDs"))
 ```
 
 ```{r}
