@@ -112,7 +112,7 @@ process_data <- function(data) {
   ids <- data[, 1]  # IDs are in the first column
   expression_data <- data[, -1]
 
-  # Imputation to estimate missing values based on the available data
+  # Imputation to estimate missing values based on the mean of available data
   expression_data_imputed <- apply(expression_data, 2, 
                                    function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x)
                                    )
@@ -186,6 +186,10 @@ mRNA_top_genes_stat <- mRNA_edgeR$table
 mRNA_top_genes <- mRNA_top_genes_stat$genes
 
 # miRNA data
+# setting the factors to correctly compare the values
+metadata_id_patients_miRNA$Status <- factor(metadata_id_patients_miRNA$Status, 
+                                           levels = c("normal", "cancer"))
+
 miRNA_edgeR <- run_edgeR_analysis(miRNA_y, "~ Status", metadata_id_patients_miRNA, miRNA_data)
 miRNA_top_genes_stat <- miRNA_edgeR$table 
 miRNA_top_genes <- miRNA_top_genes_stat$miRNA_ID
@@ -212,10 +216,6 @@ pivot_and_filter <- function(data,
 ```{r}
 mRNA_log_long <- pivot_and_filter(mRNA_log, genes, mRNA_top_genes)
 miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
-```
-
-```{r}
-mRNA_metadata
 ```
 
 -   mRNA
