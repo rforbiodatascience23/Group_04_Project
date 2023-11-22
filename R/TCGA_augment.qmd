@@ -7,7 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard"
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
@@ -216,7 +216,7 @@ miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
 
 ```{r}
 mRNA_metadata <- mRNA_metadata |>
-  rename(barcode = "TCGA_ID")
+  rename(TCGA_ID = barcode)
 
 mRNA_log_long_full <- merge(mRNA_log_long, mRNA_metadata, by="TCGA_ID")
 ```
@@ -243,7 +243,7 @@ Secondly, merging long data with the clinical information from the `miRNA_metada
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
-  rename(case_submitter_id = "TCGA_ID") |>
+  rename(TCGA_ID = case_submitter_id) |>
   mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
 
 miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
