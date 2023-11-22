@@ -23,6 +23,7 @@ library(ggrepel)
 ```{r}
 mRNA_log_long_full <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_aug.RDS"))
 top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDS"))
+mrna_cle <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
 ```
 
 Subsetting top 25 "log Fold Changed" genes for a better visualisation:
@@ -64,7 +65,7 @@ mRNA_log_long_full |>
              col = Status)) +
   geom_point() +
   labs(title = "Comparison of expression of 25 top differentially expressed mRNAs \nbetween cancer and normal TCGA samples", color = "Tissue Type",
-       x = "miRNA IDs",
+       x = "mRNA IDs",
        y = "Log2 expression") +
   theme(axis.text.x = element_text(
     angle = 45,
@@ -91,20 +92,32 @@ top_genes_stat <- top_genes_stat |>
 ```
 
 ```{r}
+top_genes_stat <- top_genes_stat |>
+  mutate(
+    regulation = case_when(
+      logFC > 1 ~ "Upregulated",
+      logFC < -1 ~ "Downregulated",
+      TRUE ~ "Non-significant"
+    )
+  )
+```
+
+```{r}
 top_genes_stat |> 
   ggplot(aes(x = logFC,
-             y = -log10(PValue),
-             col = significance)) +
-  geom_point(alpha = 0.4) +
-  theme_minimal() +
+             y = -log10(FDR),
+             col = regulation)) +
+  geom_point() +
+  scale_color_manual(values = c("Upregulated" = "red", 
+                                "Downregulated" = "blue", 
+                                "Non-significant" = "gray"),
+                     name = "Type of genes regulation") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
   labs(x = "Log Fold Change",
-       y = "-log10(p-value)",
-       title = "Top Differentially Expressed miRNAs in TCGA-COAD Samples") +
-  theme(legend.position = "none",
-        plot.title = element_text(hjust = 0.5)) +
-  geom_text_repel(data = top_genes_stat_subset,
-                  aes(label = genes),
-                      color = "black")
+       y = "-log10(FDR)",
+       title = "Top Differentially Expressed mRNAs in TCGA-COAD Samples") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ## Clean environment
