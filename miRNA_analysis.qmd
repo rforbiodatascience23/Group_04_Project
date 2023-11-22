@@ -21,8 +21,8 @@ library(ggrepel)
 ## Fetch dataset
 
 ```{r}
-miRNA_log_long_full <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_log_long_full.RDS"))
-top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/top_genes_stat.RDS"))
+miRNA_log_long_full <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
 ```
 
 Subsetting top 25 "log Fold Changed" genes for a better visualisation:
@@ -32,12 +32,30 @@ top_genes_stat_subset <- top_genes_stat |>
   arrange(desc(abs(logFC))) |>
   head(n = 25)
 
-top_genes <- top_genes_stat_subset$genes
+top_genes <- top_genes_stat_subset$miRNA_ID
 ```
 
--   Comment that the samples should be taken from cancer + normal tissues of the same patients to get a proper overview of the expr.difference
+Uniting Stages in one group to facet the plots based on them later on.
 
--   For some genes, depending on the cancer behaviour, they might become up- or down-regulated, so this causes the spreading of some data points without a clear distinction from the normal tissues.
+```{r}
+# unique(miRNA_log_long_full$ajcc_pathologic_stage)
+miRNA_log_long_full <- miRNA_log_long_full |>
+  mutate(Stage = case_when(
+    ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
+    ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
+    ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
+    ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
+    ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
+    ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
+  )) |>
+  select(-ajcc_pathologic_stage)
+```
+
+## First graph
+
+-   Ideally, the samples should be taken from cancer and normal tissues of the same patients to get a proper overview of the expression difference. In our case, not all the samples had this comparison. Therefore, to make the conclusions based on the plots more precise, one should properly collect the expression data.
+
+-   From the graph below, it can be seen that, in general, miRNAs expression is higher in cancer tissues.
 
 ```{r}
 miRNA_log_long_full |>
@@ -55,23 +73,25 @@ miRNA_log_long_full |>
     plot.title = element_text(
       size = 12, 
       angle = 0)) +
-  facet_wrap(~gender)
+  facet_wrap(~ Stage)
 ```
 
+## Volcano plot
+
+-   In the following volcano plot, statistically significant values are highlighted in blue (the p-value is flipped, so it becomes more significant with the higher values). Positive LFC indicates higher expression in the cancer group compared to the normal tissues, that is in accordance with the plots above.
+
 ```{r}
-# calculate adjusted pvalue
+# stating the significance based on the adjusted pvalues (FDR corrects for multiple comparisons)
 top_genes_stat <- top_genes_stat |>
     mutate(
-      q.value = p.adjust(PValue),
       significance = case_when(
-        q.value > 0.05 ~ "no",
-        q.value <= 0.05 ~ "yes"
+        FDR > 0.05 ~ "no",
+        FDR <= 0.05 ~ "yes"
       )
     )
 ```
 
 ```{r}
-# volcano plot
 top_genes_stat |> 
   ggplot(aes(x = logFC,
              y = -log10(PValue),
@@ -84,7 +104,7 @@ top_genes_stat |>
   theme(legend.position = "none",
         plot.title = element_text(hjust = 0.5)) +
   geom_text_repel(data = top_genes_stat_subset,
-                  aes(label = genes),
+                  aes(label = miRNA_ID),
                       color = "black")
 ```
 
