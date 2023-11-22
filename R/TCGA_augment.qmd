@@ -186,7 +186,7 @@ mRNA_top_genes <- mRNA_top_genes_stat$genes
 # miRNA data
 miRNA_edgeR <- run_edgeR_analysis(miRNA_y, "~ Status", metadata_id_patients_miRNA, miRNA_data)
 miRNA_top_genes_stat <- miRNA_edgeR$table 
-miRNA_top_genes <- miRNA_top_genes_stat$genes
+miRNA_top_genes <- miRNA_top_genes_stat$miRNA_ID
 ```
 
 #### Function to pivot the datasets for the further merging with metadata.
@@ -210,6 +210,10 @@ pivot_and_filter <- function(data,
 ```{r}
 mRNA_log_long <- pivot_and_filter(mRNA_log, genes, mRNA_top_genes)
 miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
+```
+
+```{r}
+mRNA_metadata
 ```
 
 -   mRNA
@@ -255,6 +259,10 @@ Selecting columns of interest for the analysis.
 miRNA_log_long_full <- miRNA_log_long_full |>
   select(miRNA_ID, log_reads, TCGA_ID, Status, ajcc_pathologic_stage,
          gender, age_at_index, days_to_death)
+```
+
+```{r}
+miRNA_log_long_full
 ```
 
 ## Gene names as row names for expression datasets
