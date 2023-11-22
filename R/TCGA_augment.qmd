@@ -261,10 +261,6 @@ miRNA_log_long_full <- miRNA_log_long_full |>
          gender, age_at_index, days_to_death)
 ```
 
-```{r}
-miRNA_log_long_full
-```
-
 ## Gene names as row names for expression datasets
 
 ```{r}
