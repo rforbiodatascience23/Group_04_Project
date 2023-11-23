@@ -1,6 +1,58 @@
 library(edgeR)
 library(statmod)
 
+# Functions used in TCGA_load
+# Function to the IDs of specific type (cancer and normal)
+
+get_sample_ids <- function(RNA_samples_data, sample_type, num_samples) {
+  
+  filtered_samples <- RNA_samples_data |>
+    filter(type == sample_type) |>
+    head(num_samples)
+  
+  id_cancer_patients <- filtered_samples$analyte_submitter_id
+  
+  return(id_cancer_patients)
+}
+
+# Function to retrieve and prepare data from TCGA
+
+retrieve_and_prepare_data <- function(
+    project,
+    data_category,
+    data_type,
+    workflow_type,
+    id_cancer_patients,
+    directory_prefix,
+    use_prepare = TRUE
+) {
+  # Query to specify the data to get
+  query <- GDCquery(
+    project = project,
+    data.category = data_category,
+    data.type = data_type,
+    workflow.type = workflow_type,
+    barcode = id_cancer_patients
+  )
+  
+  # Downloading the samples
+  GDCdownload(
+    query = query,
+    method = "api",
+    directory = paste0(directory_prefix, "_", project),
+    files.per.chunk = 50
+  )
+  
+  # Preparing data in case of miRNAs
+  if (use_prepare) {
+    data <- GDCprepare(query, directory = paste0(directory_prefix, "_", project))
+  } else {
+    data <- NULL
+  }
+  return(data)
+}
+
+
 # Functions used in TCGA_augment 
 # Function to create normalized expression datasets.
 

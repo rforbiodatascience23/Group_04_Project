@@ -13,8 +13,9 @@ The two files *analyte.tsv* and *clinical.tsv* were retrieved from the "Biospeci
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard"
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/_raw/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
 ## Loading libraries
