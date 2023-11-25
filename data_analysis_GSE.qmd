@@ -121,7 +121,7 @@ full_results |>
 
 ```{r}
 high_expressed_genes <- mirna_results |>
-  filter(abs(logFC) > 1.5) |>
+  filter(abs(logFC) > 1) |>
   slice(-14) |>
   inner_join(mirna_exp, by = "GENE_NAME", copy = FALSE) |>
   distinct(GENE_NAME, .keep_all = FALSE)
