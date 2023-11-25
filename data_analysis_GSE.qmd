@@ -134,6 +134,6 @@ target_mirna <- mirna_exp |>
 ## Deleting files
 
 ```{r}
-objects_to_keep <- ls(pattern = "terget_mirna")
+objects_to_keep <- ls(pattern = "target_mirna")
 rm(list = setdiff(ls(), objects_to_keep))
 ```
