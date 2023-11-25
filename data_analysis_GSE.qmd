@@ -126,7 +126,7 @@ high_expressed_genes <- mirna_results |>
   inner_join(mirna_exp, by = "GENE_NAME", copy = FALSE) |>
   distinct(GENE_NAME, .keep_all = FALSE)
 
-terget_mirna <- mirna_exp |>
+target_mirna <- mirna_exp |>
   filter(GENE_NAME %in% high_expressed_genes$GENE_NAME)|>
   distinct(GENE_NAME, .keep_all = TRUE)
 ```
