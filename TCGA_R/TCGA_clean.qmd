@@ -8,7 +8,7 @@ editor: visual
 
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 ```
 
 ## Load Libraries
@@ -21,9 +21,9 @@ library(SummarizedExperiment)
 ## Fetch dataset
 
 ```{r}
-mRNA_all <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
-miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_load.RDS"))
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_load.RDS"))
+mRNA_all <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
 ```
 
 ## Tidy miRNA data
@@ -42,8 +42,15 @@ miRNA_data <- miRNA_data |>
 miRNA_metadata <- miRNA_metadata |>
   filter(case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12)) |>
   mutate(across(everything(), ~ifelse(. == "'--", NA, .))) |>
-  select(-where(~all(is.na(.)))) |>
-  group_by(case_submitter_id)
+  select(-where(~all(is.na(.))),-treatment_type, -treatment_or_therapy)
+
+miRNA_metadata <- unique(miRNA_metadata)
+
+miRNA_metadata <- miRNA_metadata |>
+  mutate(case_submitter_id = ifelse(
+    case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12),
+    names(miRNA_data)[-1],
+    case_submitter_id))
 ```
 
 ## Alter column data types
@@ -75,17 +82,17 @@ mRNA_data <- as.data.frame(assay(mRNA_all))
 mRNA_metadata <- as.data.frame(colData(mRNA_all))
 ```
 
-## Clean environment
-
-```{r}
-rm(mRNA_all)
-```
-
 ## Save clean data files
 
 ```{r}
-saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
-saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
-saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
-saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
+saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
+```
+
+## Clean environment
+
+```{r}
+rm(list = ls())
 ```
