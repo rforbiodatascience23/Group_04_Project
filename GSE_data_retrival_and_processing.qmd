@@ -52,5 +52,11 @@ saveRDS(gse_data_frame, file = paste0(path, "/GSE_data/gse_data_load.RDs"))
 exp_data <- as.data.frame(exp_data)
 saveRDS(exp_data, file = paste0(path, "/GSE_data/gse_expressed_data.RDs"))
 
-saveRDS(gpl, file = paste0(path, "/GSE_data/gse_meta_data.RDs"))
+saveRDS(gpl, file = paste0(path, "/GSE_data/gse_chosen_meta_data.RDs"))
+
+saveRDS(mirna_exp, file = paste0(path, "/GSE_data/gse_all_data.RDs"))
+
+saveRDS(metadata, file = paste0(path, "/GSE_data/gse_all_meta_data.RDs"))
+
+
 ```
