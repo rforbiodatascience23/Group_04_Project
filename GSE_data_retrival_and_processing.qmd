@@ -41,3 +41,16 @@ mirna_exp <- gse_data_frame |>
 metadata <- gse_data@phenoData@data
 
 ```
+
+## Saving datasets
+
+```{r}
+path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
+
+saveRDS(gse_data_frame, file = paste0(path, "/GSE_data/gse_data_load.RDs"))
+
+exp_data <- as.data.frame(exp_data)
+saveRDS(exp_data, file = paste0(path, "/GSE_data/gse_expressed_data.RDs"))
+
+
+```
