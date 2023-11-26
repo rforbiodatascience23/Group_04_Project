@@ -59,12 +59,14 @@ get_sample_ids <- function(RNA_samples_data, sample_type, num_samples) {
 ```
 
 ```{r}
-id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 50)
-id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 50)
+id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 100)
+id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 100)
 id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
 ```
 
 ## Creating a function to retrieve datasets from TCGA:
+
+-   to be removed!
 
 ```{r}
 retrieve_and_prepare_data <- function(
@@ -153,6 +155,14 @@ miRNA_metadata <- read.delim("clinical.tsv")
 ## Clean up environment
 
 ```{r}
+all_objects <- ls()
+functions_list <- all_objects[
+  sapply(all_objects, function(x) is.function(get(x))
+         )
+  ]
+rm(list = functions_list)
+rm(all_object)
+rm(functions_list)
 rm(get_sample_ids)
 rm(retrieve_and_prepare_data)
 rm(analyte)
