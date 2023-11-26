@@ -3,12 +3,13 @@ title: "GSE_gse_results_analysis"
 output:
   html_document:
     toc: true
-output_dir:"C:/Users/Konrad/Documents/group_04_project/Doc"
+output_dir: "C:/Users/Konrad/Documents/group_04_project/Doc"
 ---
 
 ## Libraries
 
 ```{r}
+
 library(tidyverse)
 library(limma)
 library(ggrepel)
@@ -143,7 +144,7 @@ gse_vol <- ggplot(data = gse_results, aes(x = logFC,
                   box.padding = unit(0.2, "lines")) +
   labs(title = "Differential Gene Expression in Colorectal Cancer", 
        x = "log2 Fold Change", 
-       y = "-log10(P.Value)", 
+       y = "-log10(adj.P.Value)", 
        col = "Differential Expression")
 
 
