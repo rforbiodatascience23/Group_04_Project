@@ -7,8 +7,8 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+own_path <- "/Users/mathildebechgaard/"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -26,12 +26,12 @@ library(stringr)
 
 ```{r}
 #miRNA
-miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
 
 #mRNA
-mRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
-mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
 ```
 
 ## miRNA data pre-processing
@@ -39,11 +39,11 @@ mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_
 Creating a meta dataset that will indicate the tissue type for each of the TCGA IDs:
 
 1\) Extracting column names from the created `miRNA_data`.\
-2) Identifying the tissue type by ID numbering and defining the result as a metadata for the patients IDs.
+2) Identifying the tissue type by IDs numbering (e.g., 01A = cancer, 11A = normal tissue) - and defining the result as a metadata for the patients IDs.
 
 ```{r}
-column_names <- colnames(miRNA_data)[-1]
-IDs <- tibble(TCGA_ID = column_names)
+column_names <- colnames(miRNA_data)[-1] 
+IDs <- tibble(TCGA_ID = column_names) # e.g., TCGA-F4-6854-01A
 ```
 
 ```{r}
@@ -58,7 +58,7 @@ metadata_id_patients_miRNA <- IDs |>
   select(-tissue_type)
 ```
 
-Log2 transformation.
+Log2 transformation, and handling NAs. If all values are missing the function replaces the entire column with **`NA`**. If there is at least one non-missing value in a column, it removes the missing values from that column using **`na.omit().`**
 
 ```{r}
 miRNA_log <- miRNA_data |>
@@ -66,8 +66,7 @@ miRNA_log <- miRNA_data |>
 
 miRNA_log <- as.data.frame(miRNA_log) |>
   group_by(miRNA_ID) |>
-  summarise(across(everything(), ~if(all(is.na(.))) NA else na.omit(.))) |>
-  ungroup()
+  summarise(across(everything(), ~if(all(is.na(.))) NA else na.omit(.)))
 ```
 
 ## mRNA data pre-processing
@@ -99,8 +98,7 @@ mRNA_log <- mRNA_data |>
 
 mRNA_log <- as.data.frame(mRNA_log) |>
   group_by(genes) |>
-  summarise(across(everything(), ~if(all(is.na(.))) NA else na.omit(.))) |>
-  ungroup()
+  summarise(across(everything(), ~if(all(is.na(.))) NA else na.omit(.)))
 ```
 
 ## edgeR
@@ -223,15 +221,13 @@ miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
 
 ```{r}
 mRNA_metadata <- mRNA_metadata |>
-  rename(TCGA_ID = barcode)
-
-mRNA_log_long_full <- merge(mRNA_log_long, mRNA_metadata, by="TCGA_ID")
+  rename(barcode = "TCGA_ID")
 ```
 
 Selecting columns of interest for the analysis.
 
 ```{r}
-mRNA_log_long_full <- mRNA_log_long_full |>
+mRNA_metadata <- mRNA_metadata |>
   select(genes, log_reads, patient, Status, ajcc_pathologic_stage, alcohol_history,
          gender, vital_status, age_at_index, days_to_death)
 ```
@@ -241,26 +237,19 @@ mRNA_log_long_full <- mRNA_log_long_full |>
 Firstly, merging expression information with the tissue types from `metadata_id_patients`.
 
 ```{r}
-miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients_miRNA, by="TCGA_ID")
-miRNA_log_long <- miRNA_log_long |>
-  mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
-```
-
-Secondly, merging long data with the clinical information from the `miRNA_metadata`.
-
-```{r}
-miRNA_metadata <- miRNA_metadata |>
-  rename(TCGA_ID = case_submitter_id) |>
-  mutate(TCGA_ID = str_sub(TCGA_ID, 1, 12))
-
-miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
+miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients_miRNA, by = "TCGA_ID")
 ```
 
 Selecting columns of interest for the analysis.
 
 ```{r}
-miRNA_log_long_full <- miRNA_log_long_full |>
-  select(miRNA_ID, log_reads, TCGA_ID, Status, ajcc_pathologic_stage,
+miRNA_metadata <- miRNA_metadata |>
+  rename(case_submitter_id = "TCGA_ID")
+```
+
+```{r}
+miRNA_metadata <- miRNA_metadata |>
+  select(TCGA_ID, ajcc_pathologic_stage,
          gender, age_at_index, days_to_death)
 ```
 
@@ -276,35 +265,19 @@ mRNA_log <- mRNA_log[,-1]
 rownames(mRNA_log) <- row_names
 ```
 
-## Clean up environment
-
-```{r}
-rm(IDs)
-rm(metadata_id_patients_miRNA)
-rm(metadata_id_patients_mRNA)
-rm(miRNA_data)
-rm(mRNA_data)
-rm(miRNA_edgeR)
-rm(mRNA_edgeR)
-rm(miRNA_log_long)
-rm(mRNA_log_long)
-rm(miRNA_metadata)
-rm(mRNA_metadata)
-rm(miRNA_y)
-rm(mRNA_y)
-rm(column_names)
-rm(miRNA_top_genes)
-rm(mRNA_top_genes)
-```
-
 ## Saving datasets for analysing
 
 ```{r}
-saveRDS(miRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/miRNA_aug.RDs"))
-saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDs"))
-saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/data/miRNA_log.RDS"))
+saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDs"))
+saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDs"))
+saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDs"))
+saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
+saveRDS(mRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_aug.RDS"))
+saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_top_genes_stat.RDs"))
+```
 
-saveRDS(mRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/mRNA_aug.RDs"))
-saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDs"))
-saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/data/mRNA_log.RDS"))
+## Clean environment
+
+```{r}
+rm(list = ls())
 ```
