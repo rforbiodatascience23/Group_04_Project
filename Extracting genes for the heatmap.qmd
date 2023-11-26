@@ -1,0 +1,86 @@
+---
+title: "Extracting genes for the heatmap"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+library(ggrepel)
+```
+
+## Load datasets
+
+```{r}
+top_genes_stat_miRNA <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_top_genes_stat.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
+
+top_genes_stat_mRNA <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_top_genes_stat.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
+```
+
+```{r}
+mRNA_data <- mRNA_data |>
+  rownames_to_column(var = "genes") |>
+  tibble()
+```
+
+```{r}
+top_20 <- top_genes_stat |>
+  mutate(diff_col = case_when(
+    logFC > 0.6 & FDR < 0.05 ~ "UP",
+    logFC < -0.6 & FDR < 0.05 ~ "DOWN",
+    TRUE ~ "NO"
+  )) |> 
+  arrange(desc(abs(logFC))) |> 
+  select(miRNA_ID) |>
+  head(n = 20) 
+
+top_20_genes <- top_20$miRNA_ID
+```
+
+```{r}
+miRNA_top_20_expression <- miRNA_data |>
+  filter(miRNA_ID %in% top_20_genes) |>
+  head(20)
+```
+
+```{r}
+top_20_mRNA <- top_genes_stat_mRNA |>
+  mutate(diff_col = case_when(
+    logFC > 0.6 & FDR < 0.05 ~ "UP",
+    logFC < -0.6 & FDR < 0.05 ~ "DOWN",
+    TRUE ~ "NO"
+  )) |> 
+  arrange(desc(abs(logFC))) |> 
+  select(genes) |>
+  head(n = 20) 
+
+top_20_mRNA <- top_20_mRNA$genes
+```
+
+```{r}
+mRNA_top_20_expression <- mRNA_data |>
+  filter(genes %in% top_20_mRNA) |>
+  head(20)
+```
+
+```{r}
+saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/Results/mRNA_top_expression.RDs"))
+saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/Results/miRNA_top_expression.RDs"))
+```
+
+## Clean the environment
+
+```{r}
+
+```
