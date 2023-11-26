@@ -36,10 +36,157 @@ format:
 
 Hi
 
-## Data analysis - GSE (Konrad)
+# Data analysis - GSE
 
 ```{r}
+#| echo: false
 
+library(tidyverse)
+library(limma)
+library(ggrepel)
+
+path <- "C:/Users/Konrad/Documents/group_04_project/Results"
+
+exp_gse_results <- readRDS("C:/Users/Konrad/Documents/group_04_project/GSE_data/gse_expressed_data.RDs")
+mirna_exp <- readRDS("C:/Users/Konrad/Documents/group_04_project/GSE_data/gse_all_data.RDs")
+```
+
+## Analysis was performed only with *limma* package, with manner similar to the methodology presented in the article
+
+## Preprocessing - Log2 transform and normalization
+
+At first it was necessary for analysis of differential expressed genes to perform log2 transformation. To do that we had to remove all of the data points below 0 to NaN's
+
+```{r}
+#| eval: true
+#| echo: true
+
+exp_gse_results <- replace(exp_gse_results, exp_gse_results <= 0, NaN)
+
+exp_log <- log2(exp_gse_results) # log2 transform
+
+exp_log <- normalizeBetweenArrays(exp_log) # normalize gse_results
+
+exp_log  <- exp_log [complete.cases(exp_log), ]
+```
+
+## Fitting data to the linear model
+
+As the next step, a design matrix was created to generate Tumor vs Normal comparison. First 11 samples were allocated to the Normal, while rest was considered as Tumor
+
+```{r}
+#| eval: true
+#| echo: true
+design <- data.frame(
+  Normal = c(rep(1, 11), rep(0, 88)),
+  Tumor = c(rep(0, 11), rep(1, 88))
+)
+
+design <- as.matrix(design)
+```
+
+After that it was decided to limit expressed genes based of a median expression. Only genes which had above median expression in 1/3 of the samples were retained
+
+```{r}
+#| eval: true
+#| echo: true
+
+cutoff <- median(exp_log)
+
+is_expressed <- exp_log > cutoff
+
+keep <- rowSums(is_expressed) > 33
+
+diff_expressed_genes <- exp_log[keep, ]
+```
+
+## 
+
+Next step was to fit linear model and to create contrasts between our 2 groups, and perform *empirical Bayes'* step to get statistics and p-values. Based on that we could make a decission which test should be used for the analysis
+
+```{r}
+#| eval: true
+#| echo: true
+
+fit <- lmFit(diff_expressed_genes, design)
+
+contrasts <- makeContrasts(Tumor - Normal, levels=design)
+
+fit2 <- contrasts.fit(fit, contrasts)
+
+fit2 <- eBayes(fit2)
+
+decideTests(fit2)
+
+table(decideTests(fit2))
+```
+
+## 
+
+To perform analysis created array weights to fit our data into model, and once again applied *empirical Bayes' step*
+
+```{r}
+#| eval: true
+#| echo: true
+
+aw <- arrayWeights(diff_expressed_genes, design)
+
+fit <- lmFit(diff_expressed_genes, design, cweights = aw)
+
+contrasts <- makeContrasts(Tumor - Normal, levels=design)
+
+fit2 <- contrasts.fit(fit, contrasts)
+
+fit2 <- eBayes(fit2)
+
+full_results <- topTable(fit2, number=Inf)
+```
+
+## 
+
+Results of our analysis were added to the data set and additional columns were created for volcano plotting: **diffexpressed** with values: NO, UP and DOWN and **label** with GENE_ID's of overly expressed genes
+
+```{r}
+#| eval: true
+#| echo: true
+
+full_results <- full_results |>
+  tibble::rownames_to_column(var = "ID")
+
+gse_results <- mirna_exp |>
+  tibble::rownames_to_column(var = "ID") |>
+  full_join(full_results, by = "ID")
+
+
+gse_results$diffexpressed <- "NO"
+
+gse_results$diffexpressed[gse_results$logFC > 1 & gse_results$adj.P.Val < 0.05] <- "UP"
+gse_results$diffexpressed[gse_results$logFC < -1 & gse_results$adj.P.Val < 0.05] <- "DOWN"
+
+gse_results$label <- NA
+gse_results$label[gse_results$diffexpressed != "NO"] <- gse_results$GENE_NAME[gse_results$diffexpressed != "NO"] 
+
+```
+
+## 
+
+As the last step a file with only highly expressed genes was generated for merging purposes, and to create top 20 over expressed genes expression file
+
+```{r}
+#| eval: true
+#| echo: true
+high_expressed_genes <- gse_results |>
+  filter(abs(logFC) > 1) |>
+  filter(adj.P.Val < 0.05)
+
+top_20_genes <- high_expressed_genes |>
+  arrange(desc(abs(logFC))) |>
+  slice_head(n = 20) |>
+  mutate(miRNA_ID = ifelse(duplicated(miRNA_ID), 
+                           paste0(miRNA_ID, "*"), 
+                           miRNA_ID)) |>
+  column_to_rownames(var = "miRNA_ID") |>
+  select(starts_with("GS"))
 ```
 
 ## Data retrieval - TCGA (Mathilde)
