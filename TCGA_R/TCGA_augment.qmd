@@ -243,7 +243,11 @@ miRNA_metadata <- miRNA_metadata |>
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
   select(TCGA_ID, ajcc_pathologic_stage,
-         gender, age_at_index, days_to_death)
+         gender, age_at_index, days_to_death) |>
+  mutate(tissue_type = str_sub(TCGA_ID, -3, -3),
+         Status = case_when(tissue_type == 0 ~ "cancer",
+                            (tissue_type == 1 | tissue_type == 2) ~ "normal",
+                            .default = "other"))
 ```
 
 ## Gene names as row names for expression datasets
