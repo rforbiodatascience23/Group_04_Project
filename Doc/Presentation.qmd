@@ -1,12 +1,30 @@
 ---
 title: "Presentation"
-format: html
-editor: visual
+author: "Group 4"
+format:
+  revealjs:
+    embed-resources: true
+    incremental: true 
+    theme: solarized
+    slide-number: c/t
+    width: 1600
+    height: 900
+    footer: R for Bio Data Science
 ---
 
-## Introduction (Laila)
+## Introduction
 
-## Data retrieval - GSE (Laila)
+![](images/Introduction - Article.png){fig-align="center"}
+
+-   CRC has the 3^rd^ highest mortality rate
+
+-   More effective methods to detect CRC are needed
+
+-   Correlation between exosomes and tumorigenesis
+
+-   miRNA and mRNA can serve as biomarkers - these we want to find!
+
+## Data retrieval - GSE
 
 ```{r}
 1 + 1
