@@ -21,9 +21,7 @@ library(patchwork)
 ## Fetch datasets
 
 ```{r}
-miRNA_log <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDS"))
 miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDS"))
-mRNA_log <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDS"))
 mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDS"))
 ```
 
