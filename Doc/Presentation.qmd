@@ -14,7 +14,7 @@ format:
 
 ## Introduction
 
-![](images/Introduction - Article.png){fig-align="center"}
+![](images/Introduction%20-%20Article.png){fig-align="center"}
 
 -   CRC has the 3^rd^ highest mortality rate
 
@@ -26,9 +26,15 @@ format:
 
 ## Data retrieval - GSE
 
-```{r}
-1 + 1
-```
+-   Using the library GEOquery, the data was loaded -\> no need to download any files
+
+-   Both primary data and meta data was loaded
+
+-   Data was already standardized
+
+## Data description - GSE
+
+Hi
 
 ## Data analysis - GSE (Konrad)
 
