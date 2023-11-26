@@ -1,0 +1,42 @@
+---
+title: "Presentation"
+format: html
+editor: visual
+---
+
+## Introduction
+
+## Data retrieval - GSE
+
+```{r}
+1 + 1
+```
+
+## Data analysis - GSE
+
+```{r}
+
+```
+
+## Data retrieval - TCGA
+
+```{r}
+#| echo: false
+2 *
+```
+
+## Data preprocess - TCGA
+
+```{r}
+
+```
+
+## Results
+
+```{r}
+
+```
+
+## Conclusions
+
+article suck ass
