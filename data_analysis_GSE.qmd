@@ -170,7 +170,7 @@ path <- "C:/Users/Konrad/Documents/group_04_project/Results"
 
 saveRDS(gse_results, file = file.path(path, "gse_results.rds"))
 
-saveRDS(high_expressed_genes, file = file.path(path, "expressed_genes.rds"))
+saveRDS(high_expressed_genes, file = file.path(path, "gse_expressed_genes.rds"))
 
 ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height = 8, units = "in")
 
