@@ -21,7 +21,7 @@ library(ggrepel)
 ## Fetch dataset
 
 ```{r}
-miRNA_log_long_full <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
+miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
 top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
 ```
 
@@ -39,16 +39,16 @@ Uniting Stages in one group to facet the plots based on them later on.
 
 ```{r}
 # unique(miRNA_log_long_full$ajcc_pathologic_stage)
-miRNA_log_long_full <- miRNA_log_long_full |>
-  mutate(Stage = case_when(
-    ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
-    ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
-    ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
-    ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
-    ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
-    ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
-  )) |>
-  select(-ajcc_pathologic_stage)
+# miRNA_log_long <- miRNA_log_long |>
+#  mutate(Stage = case_when(
+#     ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
+#     ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
+#     ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
+#     ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
+#     ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
+#     ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
+#   )) |>
+#   select(-ajcc_pathologic_stage)
 ```
 
 ## First graph
@@ -58,7 +58,7 @@ miRNA_log_long_full <- miRNA_log_long_full |>
 -   From the graph below, it can be seen that, in general, miRNAs expression is higher in cancer tissues.
 
 ```{r}
-miRNA_log_long_full |>
+miRNA_log_long |>
   filter(miRNA_ID %in% top_genes) |>
   ggplot(aes(x = miRNA_ID,
              y = log_reads,
@@ -72,8 +72,7 @@ miRNA_log_long_full |>
     hjust = 1),
     plot.title = element_text(
       size = 12, 
-      angle = 0)) +
-  facet_wrap(~ Stage)
+      angle = 0))
 ```
 
 ## Volcano plot
