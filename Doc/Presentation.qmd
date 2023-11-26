@@ -40,7 +40,6 @@ Hi
 
 ```{r}
 #| echo: false
-
 library(tidyverse)
 library(limma)
 library(ggrepel)
@@ -198,9 +197,119 @@ top_20_genes <- high_expressed_genes |>
 
 ## Data preprocess - TCGA (Ksenia)
 
-```{r}
+#### Pre-processing
 
+```{r}
+library(tibble)
 ```
+
+```{r}
+#| eval: false
+#| echo: false
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+```
+
+<font size="6">
+
+-   Creating metadata for patients ID (TCGA \# - Tissue Status) for mRNAs and miRNAs.
+-   Log2 transformation of two datasets and adjustment of the organizations. For them to have the same style of a **tidy data**: rows = gene names, columns = patients ID, value = expression data.
+
+</font>
+
+```{r}
+#| eval: true
+#| echo: false
+
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
+
+print(miRNA_data){fig-align="left"}
+```
+
+```{r}
+#| eval: true
+#| echo: false
+print(mRNA_data)
+```
+
+## Data augmentation - TCGA
+
+#### edgeR
+
+<font size="6">
+
+-   Calculation of the normalization factors for the data (\_log) with `calcNormFactors` and imputation of NAs using means.
+
+-   Creating a uniform edgeR analysis function.
+
+</font>
+
+```{css, echo=FALSE}
+.my_class1 {
+height: 300px;
+width: 1000px;
+}
+```
+
+```{r}
+#| class-source: my_class1
+#| classes: my_class1
+#| eval: false
+#| echo: true
+run_edgeR_analysis <- function(data_y,
+                               design_formula,
+                               metadata,
+                               feature_data) {
+  
+  design <- model.matrix(as.formula(design_formula),
+                         data = metadata)
+
+  # Set row names
+  rownames(design) <- data_y$samples[, 0]
+  
+  # Set row names
+  rownames(design) <- data_y$samples[, 0]
+
+  # Estimate dispersion
+  data_y <- estimateDisp(data_y, design)
+
+  # Fit model
+  fit <- glmQLFit(data_y, design, robust = TRUE)
+
+  # Likelihood ratio test
+  qlt <- glmQLFTest(fit)
+
+  # Getting top genes and saving table in the variable.
+  # The dimension of the original dataset is applied.
+  topgenes <- topTags(qlt, n = dim(feature_data)[[1]])
+
+  return(topgenes)
+}
+```
+
+## Data augmentation - TCGA
+
+#### edgeR
+
+Example of usage:
+
+```{r}
+#| eval: false
+#| echo: true
+run_edgeR_analysis(mRNA_y, "~ Status", metadata_id_patients_mRNA, mRNA_data)
+```
+
+Statistics table:
+
+```{r}
+#| eval: true
+#| echo: false
+miRNA_top_genes_stat <- readRDS("/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS") |> tibble()
+miRNA_top_genes_stat
+```
+
+## 
 
 ## Results (All)
 
