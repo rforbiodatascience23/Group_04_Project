@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 
-# Ignore all files in raw data folder
+# Ignore all files in data folder
 /Users/mathildebechgaard/group_04_project/data/
