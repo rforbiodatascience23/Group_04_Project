@@ -7,8 +7,8 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+own_path <- "/Users/mathildebechgaard/"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -26,12 +26,12 @@ library(stringr)
 
 ```{r}
 #miRNA
-miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
 
 #mRNA
-mRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
-mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
 ```
 
 ## miRNA data pre-processing
@@ -221,15 +221,13 @@ miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
 
 ```{r}
 mRNA_metadata <- mRNA_metadata |>
-  rename(TCGA_ID = barcode)
-
-mRNA_log_long_full <- merge(mRNA_log_long, mRNA_metadata, by="TCGA_ID")
+  rename(barcode = "TCGA_ID")
 ```
 
 Selecting columns of interest for the analysis.
 
 ```{r}
-mRNA_log_long_full <- mRNA_log_long_full |>
+mRNA_metadata <- mRNA_metadata |>
   select(genes, log_reads, patient, Status, ajcc_pathologic_stage, alcohol_history,
          gender, vital_status, age_at_index, days_to_death)
 ```
@@ -246,13 +244,12 @@ Selecting columns of interest for the analysis.
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
-  rename("TCGA_ID_short" = "case_submitter_id")
+  rename(case_submitter_id = "TCGA_ID")
 ```
 
 ```{r}
-# miRNA_log_long_full <- merge(miRNA_log_long, miRNA_metadata, by="TCGA_ID")
 miRNA_metadata <- miRNA_metadata |>
-  select(case_submitter_id, ajcc_pathologic_stage,
+  select(TCGA_ID, ajcc_pathologic_stage,
          gender, age_at_index, days_to_death)
 ```
 
@@ -268,42 +265,19 @@ mRNA_log <- mRNA_log[,-1]
 rownames(mRNA_log) <- row_names
 ```
 
-## Clean up environment
-
-```{r}
-all_objects <- ls()
-functions_list <- all_objects[
-  sapply(all_objects, function(x) is.function(get(x))
-         )
-  ]
-rm(list = functions_list)
-rm(all_object)
-rm(functions_list)
-rm(IDs)
-rm(metadata_id_patients_miRNA)
-rm(metadata_id_patients_mRNA)
-rm(miRNA_data)
-rm(mRNA_data)
-rm(miRNA_edgeR)
-rm(mRNA_edgeR)
-rm(miRNA_log_long)
-rm(mRNA_log_long)
-rm(miRNA_metadata)
-rm(mRNA_metadata)
-rm(miRNA_y)
-rm(mRNA_y)
-rm(column_names)
-rm(miRNA_top_genes)
-rm(mRNA_top_genes)
-```
-
 ## Saving datasets for analysing
 
 ```{r}
-saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/data/miRNA_aug.RDs"))
-saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDs"))
+saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDs"))
+saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDs"))
+saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDs"))
+saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
+saveRDS(mRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_aug.RDS"))
+saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_top_genes_stat.RDs"))
+```
 
-saveRDS(mRNA_log_long_full, file = paste0(own_path, "/group_04_project/data/mRNA_aug.RDs"))
-saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDs"))
-saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/data/mRNA_log.RDS"))
+## Clean environment
+
+```{r}
+rm(list = ls())
 ```
