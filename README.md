@@ -21,7 +21,9 @@ listed below:
 
 This project is built upon the scientific paper ***Bioinformatic
 analysis reveals an exosomal miRNA-mRNA network in colorectal cancer***
-written by Jun Ma et al. [1]
+written by Jun Ma et al. [1]. Three datasets on mRNA, miRNA and exosomal
+miRNAs are used to analyze the exosomal miRNA-mRNA network involved in
+colorectal cancer by performing bioinformatical analysis.
 
 ### Data retrieval - TCGA dataset
 
@@ -39,8 +41,8 @@ successfully.
 
 By running the script TCGA_load.qmd, all necessary data will be
 downloaded and placed in the **`"/TCGA_data/_raw/"`** data folder and
-three data and metadata files will be saved under `"/TCGA_data/"` for
-further analysis.
+three data and metadata files will be saved under **`"/TCGA_data/"`**
+for further analysis.
 
 ### Data retrieval - GSE dataset
 
