@@ -4,39 +4,39 @@ format: html
 editor: visual
 ---
 
-## Introduction
+## Introduction (Laila)
 
-## Data retrieval - GSE
+## Data retrieval - GSE (Laila)
 
 ```{r}
 1 + 1
 ```
 
-## Data analysis - GSE
+## Data analysis - GSE (Konrad)
 
 ```{r}
 
 ```
 
-## Data retrieval - TCGA
+## Data retrieval - TCGA (Mathilde)
 
 ```{r}
 #| echo: false
-2 *
+
 ```
 
-## Data preprocess - TCGA
+## Data preprocess - TCGA (Ksenia)
 
 ```{r}
 
 ```
 
-## Results
+## Results (All)
 
 ```{r}
 
 ```
 
-## Conclusions
+## Conclusions (All)
 
-article suck ass
+**article suck ass**
