@@ -1,7 +1,9 @@
 ---
 title: "GSE_gse_results_analysis"
-format: html
-editor: visual
+output:
+  html_document:
+    toc: true
+output_dir:"C:/Users/Konrad/Documents/group_04_project/Doc"
 ---
 
 ## Libraries
@@ -83,7 +85,6 @@ topTable(fit2)
 ```
 
 Now we will check which test we have to perform for our datset\
-\
 
 ```{r}
 decideTests(fit2)
@@ -91,10 +92,12 @@ decideTests(fit2)
 table(decideTests(fit2))
 ```
 
+We create array weights to fit our data into model, and once again apply *empirical Bayes' step*
+
 ```{r}
 aw <- arrayWeights(diff_expressed_genes, design)
 
-fit <- lmFit(diff_expressed_genes, design,cweights = aw)
+fit <- lmFit(diff_expressed_genes, design, cweights = aw)
 
 contrasts <- makeContrasts(Tumor - Normal, levels=design)
 
@@ -106,6 +109,8 @@ full_results <- topTable(fit2, number=Inf)
 
 ```
 
+Results of our analysis were added to the data set and volcano plot was generated to show Diferentially Expressed genes
+
 ```{r}
 full_results <- full_results |>
   tibble::rownames_to_column(var = "ID")
@@ -115,18 +120,11 @@ gse_results <- mirna_exp |>
   full_join(full_results, by = "ID")
 
 
- 
-
-# Assuming gse_results is your data frame, replace it with your actual data frame name
-
-# Add a column of NAs
 gse_results$diffexpressed <- "NO"
 
-# Set values based on conditions
 gse_results$diffexpressed[gse_results$logFC > 1 & gse_results$adj.P.Val < 0.05] <- "UP"
 gse_results$diffexpressed[gse_results$logFC < -1 & gse_results$adj.P.Val < 0.05] <- "DOWN"
 
-# Create a new column "label" to store gene names for differentially expressed genes
 gse_results$label <- NA
 gse_results$label[gse_results$diffexpressed != "NO"] <- gse_results$GENE_NAME[gse_results$diffexpressed != "NO"] 
 
@@ -152,6 +150,8 @@ gse_vol <- ggplot(data = gse_results, aes(x = logFC,
 
 
 ```
+
+As the last step a file of only highly expressed genes was generated for merging purposes
 
 ```{r}
 high_expressed_genes <- gse_results |>
