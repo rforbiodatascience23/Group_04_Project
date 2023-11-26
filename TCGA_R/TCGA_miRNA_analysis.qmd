@@ -23,14 +23,15 @@ library(ggrepel)
 ```{r}
 miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
 top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
+miRNA_meta <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
 ```
 
-Subsetting top 25 "log Fold Changed" genes for a better visualisation:
+Subsetting top 15 "log Fold Changed" genes for a better visualisation:
 
 ```{r}
 top_genes_stat_subset <- top_genes_stat |>
   arrange(desc(abs(logFC))) |>
-  head(n = 25)
+  head(n = 15)
 
 top_genes <- top_genes_stat_subset$miRNA_ID
 ```
@@ -38,17 +39,32 @@ top_genes <- top_genes_stat_subset$miRNA_ID
 Uniting Stages in one group to facet the plots based on them later on.
 
 ```{r}
-# unique(miRNA_log_long_full$ajcc_pathologic_stage)
-# miRNA_log_long <- miRNA_log_long |>
-#  mutate(Stage = case_when(
-#     ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
-#     ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
-#     ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
-#     ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
-#     ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
-#     ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
-#   )) |>
-#   select(-ajcc_pathologic_stage)
+miRNA_meta <- miRNA_meta |>
+ mutate(Stage = case_when(
+    ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
+    ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
+    ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
+    ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
+    ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
+    ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
+  )) |>
+  select(-ajcc_pathologic_stage) |> tibble() |>
+  rename(TCGA_ID = "sample")
+```
+
+```{r}
+miRNA_meta |> 
+  select(TCGA_ID, Stage) |> 
+  right_join(miRNA_log_long, by = 'TCGA_ID') |>
+  ggplot(aes(x = Stage,
+         y = log_reads,
+         col = Status)) +
+  geom_boxplot() +
+  scale_color_manual(values = c("cancer" = "#f47c6c", 
+                                "normal" = "#13b3ba")) + 
+  labs(title = "Boxplot comparison of total miRNA expression between four cancer stages", color = "Tissue Type",
+       x = "Cancer stage",
+       y = "Log2 expression")
 ```
 
 ## First graph
@@ -64,9 +80,11 @@ miRNA_log_long |>
              y = log_reads,
              col = Status)) +
   geom_point() +
-  labs(title = "Comparison of expression of 25 top differentially expressed miRNAs \nbetween cancer and normal TCGA samples", color = "Tissue Type",
+  labs(title = "Comparison of expression of 15 top differentially expressed miRNAs \nbetween cancer and normal TCGA samples", color = "Tissue Type",
        x = "miRNA IDs",
        y = "Log2 expression") +
+  scale_color_manual(values = c("cancer" = "#f47c6c", 
+                                "normal" = "#13b3ba")) +
   theme(axis.text.x = element_text(
     angle = 45,
     hjust = 1),
@@ -106,12 +124,12 @@ top_genes_stat |>
   ggplot(aes(x = logFC,
              y = -log10(FDR),
              col = regulation)) +
-  geom_point() +
+  geom_point(alpha = 0.5) +
   scale_color_manual(values = c("Upregulated" = "red", 
                                 "Downregulated" = "blue", 
                                 "Non-significant" = "gray"),
                      name = "Type of genes regulation") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
   geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
   labs(x = "Log Fold Change",
        y = "-log10(FDR)",
