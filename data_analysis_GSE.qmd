@@ -152,12 +152,22 @@ gse_vol <- ggplot(data = gse_results, aes(x = logFC,
 
 ```
 
-As the last step a file of only highly expressed genes was generated for merging purposes
+As the last step a file of only highly expressed genes was generated for merging purposes, and to create top 20 over expressed genes as an expression file
 
 ```{r}
 high_expressed_genes <- gse_results |>
   filter(abs(logFC) > 1) |>
   filter(adj.P.Val < 0.05)
+
+top_20_genes <- high_expressed_genes |>
+  arrange(desc(abs(logFC))) |>
+  slice_head(n = 20) |>
+  mutate(miRNA_ID = ifelse(duplicated(miRNA_ID), 
+                           paste0(miRNA_ID, "*"), 
+                           miRNA_ID)) |>
+  column_to_rownames(var = "miRNA_ID") |>
+  select(starts_with("GS"))
+
 
 ```
 
@@ -171,6 +181,8 @@ path <- "C:/Users/Konrad/Documents/group_04_project/Results"
 saveRDS(gse_results, file = file.path(path, "gse_results.rds"))
 
 saveRDS(high_expressed_genes, file = file.path(path, "gse_expressed_genes.rds"))
+
+saveRDS(top_20_genes, file = file.path(path, "gse_top_20.rds"))
 
 ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height = 8, units = "in")
 
