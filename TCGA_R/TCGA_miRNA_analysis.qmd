@@ -91,17 +91,32 @@ top_genes_stat <- top_genes_stat |>
 ```
 
 ```{r}
+top_genes_stat <- top_genes_stat |>
+  mutate(
+    regulation = case_when(
+      logFC > 1 ~ "Upregulated",
+      logFC < -1 ~ "Downregulated",
+      TRUE ~ "Non-significant"
+    )
+  )
+```
+
+```{r}
 top_genes_stat |> 
   ggplot(aes(x = logFC,
-             y = -log10(PValue),
-             col = significance)) +
-  geom_point(alpha = 0.4) +
-  theme_minimal() +
+             y = -log10(FDR),
+             col = regulation)) +
+  geom_point() +
+  scale_color_manual(values = c("Upregulated" = "red", 
+                                "Downregulated" = "blue", 
+                                "Non-significant" = "gray"),
+                     name = "Type of genes regulation") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
   labs(x = "Log Fold Change",
-       y = "-log10(p-value)",
+       y = "-log10(FDR)",
        title = "Top Differentially Expressed miRNAs in TCGA-COAD Samples") +
-  theme(legend.position = "none",
-        plot.title = element_text(hjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
   geom_text_repel(data = top_genes_stat_subset,
                   aes(label = miRNA_ID),
                       color = "black")
