@@ -228,8 +228,7 @@ Selecting columns of interest for the analysis.
 
 ```{r}
 mRNA_metadata <- mRNA_metadata |>
-  select(genes, log_reads, patient, Status, ajcc_pathologic_stage, alcohol_history,
-         gender, vital_status, age_at_index, days_to_death)
+  select(patient, Status, ajcc_pathologic_stage, alcohol_history, gender, vital_status, age_at_index, days_to_death)
 ```
 
 -   miRNA
@@ -271,9 +270,12 @@ rownames(mRNA_log) <- row_names
 saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDs"))
 saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDs"))
 saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDs"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDs"))
+
 saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
 saveRDS(mRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_aug.RDS"))
 saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_top_genes_stat.RDs"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDs"))
 ```
 
 ## Clean environment
