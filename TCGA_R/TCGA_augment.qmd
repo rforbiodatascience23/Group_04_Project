@@ -233,12 +233,6 @@ mRNA_metadata <- mRNA_metadata |>
 
 -   miRNA
 
-Firstly, merging expression information with the tissue types from `metadata_id_patients`.
-
-```{r}
-miRNA_log_long <- merge(miRNA_log_long, metadata_id_patients_miRNA, by = "TCGA_ID")
-```
-
 Selecting columns of interest for the analysis.
 
 ```{r}
@@ -270,12 +264,12 @@ rownames(mRNA_log) <- row_names
 saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDs"))
 saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDs"))
 saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDs"))
-saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDs"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDs"))
 
 saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
 saveRDS(mRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_aug.RDS"))
 saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_top_genes_stat.RDs"))
-saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDs"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDs"))
 ```
 
 ## Clean environment
