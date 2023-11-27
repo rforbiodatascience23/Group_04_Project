@@ -4,6 +4,11 @@ format: html
 editor: visual
 ---
 
+```{r setup}
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/group_04_project/"
+knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
+```
+
 ## Loading libraries
 
 ```{r}
@@ -25,7 +30,6 @@ gse_plot1 <- patient_stage |>
 ```
 
 ```{r}
-
 gse_plot2 <- ggplot(patient_stage, aes(x = cancer_stage, fill = cancer_stage)) +
   geom_bar() +
   labs(x = "The stages of cancer ", y = "Frequency", title = "Frequency of the different states of cancer") +
@@ -45,7 +49,7 @@ gse_plot3 <- ggplot(patient_stage, aes(x = gender, y = age, fill = gender)) + ge
 ## Saving the plots
 
 ```{r}
-ggsave(file.path("../Doc/images/", "occurences_gender.png"), gse_plot1, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "cancer_frequency.png"), gse_plot2, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "gse_gender_distribution.png"), gse_plot3, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "occurences_gender.png"), gse_plot1, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "cancer_frequency.png"), gse_plot2, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "gse_gender_distribution.png"), gse_plot3, width = 10, height = 6, units = "in")
 ```

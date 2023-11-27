@@ -25,38 +25,40 @@ See the README.md file.
 
 ## GSE
 
-```{r}
-data <- getGEO(GEO = "GSE39833")[[1]]
+## Loading data
 
-exp_data <- exprs(data) #extracting expression values (Limma)
+```{r}
+gse_data <- getGEO(GEO = "GSE39833")[[1]]
+
+exp_data <- exprs(gse_data) #extracting expression values (Limma)
 
 gpl <- Table(getGEO("GPL14767"))
 ```
 
-### Tidying data
+## Tidying data
 
 ```{r}
-data_frame <- as.data.frame(exp_data) |> 
+gse_data_frame <- as.data.frame(exp_data) |> 
   rownames_to_column(var = "ID")
 
 gpl <- gpl |> 
   mutate(ID = as.character(ID))
 
-mirna_exp <- data_frame |> 
+mirna_exp <- gse_data_frame |> 
   left_join(gpl, by = "ID") |> 
   select( ,-1) |> 
   relocate(where(is.numeric), .after = where(is.character))
 
-metadata <- data@phenoData@data
+metadata <- gse_data@phenoData@data
 
 ```
 
-### Saving datasets
+## Saving datasets
 
 ```{r}
 path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
 
-saveRDS(data_frame, file = paste0(path, "/data/data_load.RDs"))
+saveRDS(gse_data_frame, file = paste0(path, "/data/gse_data_load.RDs"))
 
 exp_data <- as.data.frame(exp_data)
 saveRDS(exp_data, file = paste0(path, "/data/gse_expressed_data.RDs"))
@@ -68,6 +70,35 @@ saveRDS(mirna_exp, file = paste0(path, "/data/gse_all_data.RDs"))
 saveRDS(metadata, file = paste0(path, "/data/gse_all_meta_data.RDs"))
 
 
+```
+
+## Loading library
+
+```{r}
+library(tidyverse)
+```
+
+## Creating new data frame
+
+```{r}
+patient_stage <- readRDS("GSE_data/gse_all_meta_data.RDs") |> 
+  select(source_name_ch1, characteristics_ch1.2, characteristics_ch1.3, characteristics_ch1.4) |> 
+  mutate(group = if_else(characteristics_ch1.4 == "tnm stages: normal", "control", "cancer")) |> 
+  mutate(characteristics_ch1.3 = as.numeric(str_replace(characteristics_ch1.3, "age: ", ""))) |> 
+  mutate(characteristics_ch1.2 = str_replace(characteristics_ch1.2, "gender: ", "")) |> 
+  mutate(characteristics_ch1.4 = str_replace(characteristics_ch1.4, "tnm stages: ", "")) |> 
+  rename(gender = characteristics_ch1.2,
+         age = characteristics_ch1.3,
+         cancer_stage = characteristics_ch1.4)
+```
+
+## Saving file
+
+```{r}
+path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
+
+patient_stage <- as.data.frame(patient_stage)
+saveRDS(patient_stage, file = paste0(path, "GSE_data/gse_clean.RDs"))
 ```
 
 ## TCGA
@@ -307,8 +338,6 @@ ggsave(file.path("../results/images/", "cancer_stages.png"), cancer_stages, widt
 
 ## GSE
 
-## Loading files
-
 ```{r}
 
 exp_gse_results <- readRDS("data/gse_expressed_data.RDs")
@@ -464,7 +493,7 @@ top_20_genes <- high_expressed_genes |>
 
 ```
 
-## Saving Files
+### Saving Files
 
 ```{r}
 
@@ -480,7 +509,7 @@ ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height =
 
 ## miRNA
 
-## Set Working directory
+### Set Working directory
 
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
@@ -488,7 +517,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
-## Fetch dataset
+### Fetch dataset
 
 ```{r}
 miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
@@ -790,19 +819,6 @@ ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_
 ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_vol.png")), plot = mrna_vol, width = 14, height = 8, unit = "in")
 ```
 
----
-title: "TCGA_topgenes_heatmap"
-format: html
-editor: visual
----
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
-```
-
 ## Load datasets
 
 ```{r}
@@ -865,18 +881,7 @@ saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/resul
 saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/miRNA_top_expression.RDs"))
 ```
 
----
-title: "TCGA_Heatmap"
-format: html
-editor: visual
----
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
-```
+## Heatmap
 
 ## Fetch dataset
 
