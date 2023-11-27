@@ -11,8 +11,9 @@ See the README.md file.
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard/"
+own_path <- "/Users/kseniakirdey"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/_raw/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
 ## Loading libraries
@@ -40,65 +41,17 @@ RNA_samples <- RNA_samples |>
   arrange(type)
 ```
 
-## Creating a function to get the IDs of interest:
+## Obtaining the IDs of interest
 
 ```{r}
-get_sample_ids <- function(RNA_samples_data, sample_type, num_samples) {
-
-  filtered_samples <- RNA_samples_data |>
-    filter(type == sample_type) |>
-    head(num_samples)
-
-  id_cancer_patients <- filtered_samples$analyte_submitter_id
-
-  return(id_cancer_patients)
-}
-```
-
-```{r}
-id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 100)
-id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 100)
+id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 50)
+id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 50)
 id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
 ```
 
-## Creating a function to retrieve datasets from TCGA:
+## Retrieving datasets from TCGA
 
-```{r}
-retrieve_and_prepare_data <- function(
-  project,
-  data_category,
-  data_type,
-  workflow_type,
-  id_cancer_patients,
-  directory_prefix,
-  use_prepare = TRUE
-) {
-  # Query to specify the data to get
-  query <- GDCquery(
-    project = project,
-    data.category = data_category,
-    data.type = data_type,
-    workflow.type = workflow_type,
-    barcode = id_cancer_patients
-  )
-
-  # Downloading the samples
-  GDCdownload(
-    query = query,
-    method = "api",
-    directory = paste0(directory_prefix, "_", project),
-    files.per.chunk = 50
-  )
-
-  # Preparing data in case of miRNAs
-  if (use_prepare) {
-    data <- GDCprepare(query, directory = paste0(directory_prefix, "_", project))
-  } else {
-    data <- NULL
-  }
-  return(data)
-}
-```
+### miRNA
 
 ```{r}
 miRNA_data_normal <- retrieve_and_prepare_data(
@@ -112,8 +65,27 @@ miRNA_data_normal <- retrieve_and_prepare_data(
 ```
 
 ```{r}
+miRNA_data_cancer <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients_cancer,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+```{r}
 miRNA_data <- bind_rows(miRNA_data_cancer, miRNA_data_normal)
 ```
+
+## Fetch miRNA metadataset
+
+```{r}
+miRNA_metadata <- read.delim("clinical.tsv")
+```
+
+### mRNA
 
 ```{r}
 mRNA_all <- retrieve_and_prepare_data(
@@ -126,14 +98,10 @@ mRNA_all <- retrieve_and_prepare_data(
 )
 ```
 
+## References
+
 ```{r}
 print(citation("TCGAbiolinks"), bibtex=TRUE)
-```
-
-## Fetch miRNA metadataset
-
-```{r}
-miRNA_metadata <- read.delim("clinical.tsv")
 ```
 
 ## Save data files
