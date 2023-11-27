@@ -1,0 +1,87 @@
+---
+title: "Extracting genes for the heatmap"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+library(ggrepel)
+```
+
+## Load datasets
+
+```{r}
+top_genes_stat_miRNA <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
+
+top_genes_stat_mRNA <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
+```
+
+```{r}
+mRNA_data <- mRNA_data |>
+  rownames_to_column(var = "genes") |>
+  tibble()
+```
+
+Function to choose top `n_genes` from the datasets.
+
+```{r}
+top_genes_choosing <- function(stat_data, 
+                             id_column, 
+                             n_genes,
+                             expr_data) {
+  top <- stat_data |>
+  mutate(diff_col = case_when(
+    logFC > 0.6 & FDR < 0.05 ~ "UP",
+    logFC < -0.6 & FDR < 0.05 ~ "DOWN",
+    TRUE ~ "NO"
+  )) |> 
+  arrange(desc(abs(logFC))) |> 
+  select({{ id_column }}) |>
+  head(n_genes)
+  
+  top <- top |> pull({{ id_column }})
+  
+  top_expression <- expr_data |>
+  filter({{ id_column }} %in% top) |>
+  head(n_genes)
+  
+  return(top_expression)
+}
+```
+
+```{r}
+miRNA_top_20_expression <- top_genes_choosing(top_genes_stat_miRNA, 
+                   id_column = miRNA_ID, 
+                   n_genes = 20, 
+                   expr_data = miRNA_data)
+```
+
+```{r}
+mRNA_top_20_expression <- top_genes_choosing(top_genes_stat_mRNA, 
+                   id_column = genes, 
+                   n_genes = 20, 
+                   expr_data = mRNA_data)
+```
+
+```{r}
+saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/mRNA_top_expression.RDs"))
+saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/miRNA_top_expression.RDs"))
+```
+
+## Clean the environment
+
+```{r}
+rm(list = ls())
+```

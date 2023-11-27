@@ -8,7 +8,7 @@ editor: visual
 
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
 ## Load Libraries
@@ -21,8 +21,8 @@ library(patchwork)
 ## Fetch datasets
 
 ```{r}
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDS"))
-mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_aug.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_aug.RDS"))
 ```
 
 ## Experiment description
@@ -96,9 +96,9 @@ cancer_stages
 ## Save plots
 
 ```{r}
-ggsave(file.path("../Doc/images/", "cancer_vs_normal.png"), cancer_vs_normal, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "gender_distribution.png"), gender_distribution, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "cancer_vs_normal.png"), cancer_vs_normal, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "gender_distribution.png"), gender_distribution, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
 ```
 
 ## Clean environment

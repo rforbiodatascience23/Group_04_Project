@@ -22,9 +22,9 @@ library(reshape2)
 ## Fetch dataset
 
 ```{r}
-gse_miRNA <- readRDS(paste0(own_path, "/group_04_project/Results/gse_top_20.rds"))
-TCGA_miRNA <- readRDS(paste0(own_path, "/group_04_project/Results/miRNA_top_expression.rds"))
-TCGA_mRNA <- readRDS(paste0(own_path, "/group_04_project/Results/mRNA_top_expression.rds"))
+gse_miRNA <- readRDS(paste0(own_path, "/group_04_project/results/gse_top_20.rds"))
+TCGA_miRNA <- readRDS(paste0(own_path, "/group_04_project/results/miRNA_top_expression.rds"))
+TCGA_mRNA <- readRDS(paste0(own_path, "/group_04_project/results/mRNA_top_expression.rds"))
 ```
 
 ## Transform data for visualization
@@ -56,49 +56,40 @@ TCGA_mRNA <- t(TCGA_mRNA)
 ## miRNA Heatmap
 
 ```{r}
-ggplot(data = melt(GSE_miRNA), aes(x = Var2, y = Var1, fill = value)) +
+GSE_miRNA_heatmap <- ggplot(data = melt(GSE_miRNA), aes(x = Var2, y = Var1, fill = value)) +
   geom_tile() +
   labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_blank())
-<<<<<<< HEAD:R/Combined_heatmap.qmd
 GSE_miRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
-=======
->>>>>>> 82def9e705ed1ffd591a91e73e30e07cf9960003:TCGA_R/Combined_heatmap.qmd
 ```
 
 ## miRNA Heatmap
 
 ```{r}
-ggplot(data = melt(TCGA_miRNA), aes(x = Var2, y = Var1, fill = value)) +
+TCGA_miRNA_heatmap <- ggplot(data = melt(TCGA_miRNA), aes(x = Var2, y = Var1, fill = value)) +
   geom_tile() +
   labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_blank())
-<<<<<<< HEAD:R/Combined_heatmap.qmd
 TCGA_miRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
-=======
->>>>>>> 82def9e705ed1ffd591a91e73e30e07cf9960003:TCGA_R/Combined_heatmap.qmd
 ```
 
 ## mRNA Heatmap
 
 ```{r}
-ggplot(data = melt(TCGA_mRNA), aes(x = Var2, y = Var1, fill = value)) +
+TCGA_mRNA_heatmap <- ggplot(data = melt(TCGA_mRNA), aes(x = Var2, y = Var1, fill = value)) +
   geom_tile() +
   labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_blank())
-<<<<<<< HEAD:R/Combined_heatmap.qmd
 TCGA_mRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
 ```
 
 ## Save plots
 
 ```{r}
-ggsave(file.path("../Doc/images/", "GSE_miRNA_heatmap.png"), GSE_miRNA_heatmap, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "TCGA_miRNA_heatmap.png"), TCGA_miRNA_heatmap, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "TCGA_mRNA_heatmap.png"), TCGA_mRNA_heatmap, width = 10, height = 6, units = "in")
-=======
->>>>>>> 82def9e705ed1ffd591a91e73e30e07cf9960003:TCGA_R/Combined_heatmap.qmd
+ggsave(file.path("../results/images/", "GSE_miRNA_heatmap.png"), GSE_miRNA_heatmap, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "TCGA_miRNA_heatmap.png"), TCGA_miRNA_heatmap, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "TCGA_mRNA_heatmap.png"), TCGA_mRNA_heatmap, width = 10, height = 6, units = "in")
 ```

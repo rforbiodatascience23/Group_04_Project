@@ -177,9 +177,10 @@ miRNA_aug
         -   'diffexpressed' with values: NO, UP, and DOWN.
         -   'label' with GENE_ID's of overexpressed genes.
 
-```{r}
-
-```
+| TCGA mRNA | TCGA miRNA | GSE miRNA |
+|-----------|------------|-----------|
+|           |            |           |
+|           |            |           |
 
 ## Conclusions
 

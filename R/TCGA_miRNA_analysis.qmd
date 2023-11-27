@@ -7,8 +7,8 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -22,9 +22,9 @@ library(ggrepel)
 ## Fetch dataset
 
 ```{r}
-miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_aug.RDS"))
-top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_top_genes_stat.RDS"))
-miRNA_meta <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_metadata_clean.RDS"))
+miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
+miRNA_meta <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
 ```
 
 Subsetting top 15 "log Fold Changed" genes for a better visualisation:
@@ -159,14 +159,14 @@ mirna_vol <- top_genes_stat |>
         legend.title = element_text(size=20))
 ```
 
-## Saving the plot
+## Save plots
 
 ```{r}
-ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mirna_boxplot.png")), plot = miRNA_box, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mirna_boxplot.png")), plot = miRNA_box, width = 14, height = 8, unit = "in")
 
-ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mirna_expression.png")), plot = miRNA_expression, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mirna_expression.png")), plot = miRNA_expression, width = 14, height = 8, unit = "in")
 
-ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mirna_vol.png")), plot = mirna_vol, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mirna_vol.png")), plot = mirna_vol, width = 14, height = 8, unit = "in")
 ```
 
 ## Clean environment

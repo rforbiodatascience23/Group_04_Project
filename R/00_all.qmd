@@ -75,7 +75,7 @@ See the README.md file.
 
 ```{r setup}
 own_path <- "/Users/kseniakirdey"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/_raw/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/_raw/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -149,24 +149,24 @@ print(citation("TCGAbiolinks"), bibtex=TRUE)
 ## Save data files
 
 ```{r}
-saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
-saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
-saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_load.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_load.RDS"))
+saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
 ```
 
 ## Set Working directory
 
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
 ## Fetch dataset
 
 ```{r}
-mRNA_all <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
-miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
+mRNA_all <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_load.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_load.RDS"))
 ```
 
 ## Tidy miRNA data
@@ -228,24 +228,24 @@ mRNA_metadata <- as.data.frame(colData(mRNA_all))
 ## Save clean data files
 
 ```{r}
-saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
-saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
-saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
-saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
+saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
 ```
 
 ## Set Working directory
 
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
 ## Fetch datasets
 
 ```{r}
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDS"))
-mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_metadata_aug.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_aug.RDS"))
 ```
 
 ## Experiment description
@@ -319,9 +319,9 @@ cancer_stages
 ## Save plots
 
 ```{r}
-ggsave(file.path("../Doc/images/", "cancer_vs_normal.png"), cancer_vs_normal, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "gender_distribution.png"), gender_distribution, width = 10, height = 6, units = "in")
-ggsave(file.path("../Doc/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "cancer_vs_normal.png"), cancer_vs_normal, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "gender_distribution.png"), gender_distribution, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
 ```
 
 ## Clean environment
@@ -497,7 +497,7 @@ top_20_genes <- high_expressed_genes |>
 ```{r}
 
 # Define the path to the directory
-path <- "C:/Users/Konrad/Documents/group_04_project/Results"
+path <- "C:/Users/Konrad/Documents/group_04_project/results"
 
 saveRDS(gse_results, file = file.path(path, "gse_results.rds"))
 

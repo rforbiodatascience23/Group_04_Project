@@ -11,8 +11,8 @@ See the README.md file.
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/_raw/"))
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/_raw/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -92,9 +92,9 @@ print(citation("TCGAbiolinks"), bibtex=TRUE)
 ## Save data files
 
 ```{r}
-saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
-saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
-saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_load.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_load.RDS"))
+saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
 ```
 
 ## Clean environment

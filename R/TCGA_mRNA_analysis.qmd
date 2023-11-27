@@ -7,8 +7,8 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -22,9 +22,9 @@ library(ggrepel)
 ## Fetch dataset
 
 ```{r}
-mRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_aug.RDS"))
-top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_top_genes_stat.RDS"))
-mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_metadata_clean.RDS"))
+mRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_aug.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
 ```
 
 Subseting top 25 "log Fold Changed" genes for a better visualisation:
@@ -147,12 +147,14 @@ mrna_vol <- top_genes_stat |>
         legend.title = element_text(size=20))
 ```
 
+## Save plots
+
 ```{r}
-ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mrna_boxplot.png")), plot = mRNA_box, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_boxplot.png")), plot = mRNA_box, width = 14, height = 8, unit = "in")
 
-ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mrna_expression.png")), plot = mRNA_expression, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_expression.png")), plot = mRNA_expression, width = 14, height = 8, unit = "in")
 
-ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mrna_vol.png")), plot = mrna_vol, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_vol.png")), plot = mrna_vol, width = 14, height = 8, unit = "in")
 ```
 
 ## Clean environment

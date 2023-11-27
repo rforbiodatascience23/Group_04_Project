@@ -1,0 +1,25 @@
+---
+title: "GSE_new_df"
+format: html
+editor: visual
+---
+
+## Loading library
+
+```{r}
+library(tidyverse)
+```
+
+## Creating new data frame
+
+```{r}
+patient_stage <- readRDS("data/gse_all_meta_data.RDs") |> 
+  select(source_name_ch1, characteristics_ch1.2, characteristics_ch1.3, characteristics_ch1.4) |> 
+  mutate(group = if_else(characteristics_ch1.4 == "tnm stages: normal", "control", "cancer")) |> 
+  mutate(characteristics_ch1.3 = as.numeric(str_replace(characteristics_ch1.3, "age: ", ""))) |> 
+  mutate(characteristics_ch1.2 = str_replace(characteristics_ch1.2, "gender: ", "")) |> 
+  mutate(characteristics_ch1.4 = str_replace(characteristics_ch1.4, "tnm stages: ", "")) |> 
+  rename(gender = characteristics_ch1.2,
+         age = characteristics_ch1.3,
+         cancer_stage = characteristics_ch1.4)
+```
