@@ -1,11 +1,11 @@
 ---
-title: "Presentation"
-author: "Group 4"
+title: "miRNA and mRNA expressions in colorectal cancer samples from two different databases"
+author: "Group 4: Konrad, Ksenia, Laila, Mathilde"
 format:
   revealjs:
     embed-resources: true
     incremental: true 
-    theme: solarized
+    theme: moon
     slide-number: c/t
     width: 1600
     height: 900
