@@ -12,9 +12,7 @@ format:
     footer: R for Bio Data Science
 ---
 
-## Introduction
-
-![](images/Introduction%20-%20Article.png){fig-align="center"}
+## ![](images/Introduction - Article.png)Introduction
 
 -   CRC has the 3^rd^ highest mortality rate
 
