@@ -32,10 +32,6 @@ format:
 
 -   Data was already standardized
 
-## Data description - GSE
-
-Hi
-
 ## Data analysis - GSE
 
 <font size="6">
@@ -125,7 +121,7 @@ library(tibble)
 #| eval: false
 #| echo: false
 own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
 <font size="6">
@@ -155,7 +151,7 @@ Statistics table:
 #| eval: true
 #| echo: false
 own_path <- "/Users/mathildebechgaard"
-miRNA_top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS")) |> tibble()
+miRNA_top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS")) |> tibble()
 miRNA_top_genes_stat
 ```
 
@@ -165,22 +161,36 @@ Final augmented dataset:
 #| eval: true
 #| echo: false
 
-miRNA_aug <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDS"))
+miRNA_aug <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
 miRNA_aug
 ```
 
 ## Results (All)
 
--   Results Integration and Volcano Plotting:
-    -   Results of the analysis were added to the dataset.
+<font size="6">
+
+-   Volcano Plot:
     -   Additional columns were created for volcano plotting:
         -   'diffexpressed' with values: NO, UP, and DOWN.
         -   'label' with GENE_ID's of overexpressed genes.
 
-| TCGA mRNA | TCGA miRNA | GSE miRNA |
-|-----------|------------|-----------|
-|           |            |           |
-|           |            |           |
+</font>
+
+| TCGA mRNA                   | TCGA miRNA                   | GSE miRNA                    |
+|-----------------------------|------------------------------|------------------------------|
+| ![](images/mrna_vol-01.png) | ![](images/mirna_vol-01.png) | ![](images/gse_vol_plot.png) |
+
+## Results (All)
+
+<font size="6">
+
+-   Heatmap:
+
+</font>
+
+| TCGA mRNA                         | TCGA miRNA                         | GSE miRNA                         |
+|-----------------------------------|------------------------------------|-----------------------------------|
+| ![](images/TCGA_mRNA_heatmap.png) | ![](images/TCGA_miRNA_heatmap.png) | ![](images/GSE_miRNA_heatmap.png) |
 
 ## Conclusions
 
