@@ -38,7 +38,9 @@ format:
 |-----------------------------------------|----------------------------------|
 | ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png) |
 
--   
+-   Majority of data comes from patients with earlier stage cancer
+
+-   The patients are usually elderly people
 
 ## Data analysis - GSE
 
