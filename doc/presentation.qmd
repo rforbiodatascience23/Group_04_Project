@@ -30,13 +30,9 @@ format:
 
 -   Both primary data and meta data was loaded and data was already standardized, though we still cleaned the data further
 
-|                                         |                                  |
+|                                                      |                                               |
 |---------------------------------------|---------------------------------|
-| ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png) |
-
--   Majority of data comes from patients with earlier stage cancer
-
--   The patients are usually elderly people
+| ![](images/gse_gender_distribution.png){width="257"} | ![](images/cancer_frequency.png){width="266"} |
 
 ## Data analysis - GSE
 
