@@ -4,4 +4,5 @@
 .Ruserdata
 
 # Ignore all files in data folder
-/Users/mathildebechgaard/group_04_project/data/
+/Users/mathildebechgaard/group_04_project/TCGA_data/
+/Users/mathildebechgaard/group_04_project/GSE_data/
