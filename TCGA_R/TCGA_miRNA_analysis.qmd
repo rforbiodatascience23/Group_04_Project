@@ -7,8 +7,9 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey"
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
 ## Load Libraries
@@ -60,12 +61,7 @@ miRNA_meta <- miRNA_meta |>
 miRNA_meta |> 
   select(TCGA_ID, Stage) |> 
   right_join(miRNA_log_long, by = 'TCGA_ID') |>
-  mutate(tissue_type = str_sub(TCGA_ID, 14, 14)) |>
-  mutate(
-    Status = case_when(tissue_type == 0 ~ "cancer",
-                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
-                     .default = "other")) |>
-      select(-tissue_type) |>
+  set_tissue_status() |>
   ggplot(aes(x = Stage,
          y = log_reads,
          col = Status)) +
@@ -86,11 +82,7 @@ miRNA_meta |>
 ```{r}
 miRNA_log_long |>
   filter(miRNA_ID %in% top_genes) |>
-  mutate(tissue_type = str_sub(TCGA_ID, 14, 14)) |>
-  mutate(
-    Status = case_when(tissue_type == 0 ~ "cancer",
-                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
-                     .default = "other")) |> 
+  set_tissue_status() |>
   ggplot(aes(x = miRNA_ID,
              y = log_reads,
              col = Status)) +

@@ -9,6 +9,7 @@ editor: visual
 ```{r setup}
 own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
 ## Load Libraries
@@ -43,21 +44,15 @@ Uniting Stages in one group to facet the plots based on them later on.
 ```{r}
 mRNA_metadata <- mRNA_metadata |> 
   tibble() |>
-  dplyr::rename(TCGA_ID = "barcode") 
+  dplyr::rename(TCGA_ID = "barcode")
 ```
 
 -   It can be concluded from the graph that the expression is higher in the normal tissues.
 
 ```{r}
 mRNA_metadata |> 
-  select(TCGA_ID, gender) |> 
-  right_join(mRNA_log_long, by = 'TCGA_ID') |>
-  mutate(tissue_type = str_sub(TCGA_ID, 14, 14)) |>
-  mutate(
-    Status = case_when(tissue_type == 0 ~ "cancer",
-                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
-                     .default = "other")) |>
-  select(-tissue_type) |>
+  set_tissue_status() |>
+   right_join(mRNA_log_long, by = 'TCGA_ID') |>
   ggplot(aes(x = gender,
          y = log_reads,
          col = Status)) +
@@ -75,12 +70,7 @@ mRNA_metadata |>
 
 ```{r}
 mRNA_log_long |>
-  mutate(tissue_type = str_sub(TCGA_ID, 14, 14)) |>
-  mutate(
-    Status = case_when(tissue_type == 0 ~ "cancer",
-                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
-                     .default = "other")) |>
-  select(-tissue_type) |>
+  set_tissue_status() |>
   filter(genes %in% top_genes) |>
   ggplot(aes(x = genes,
              y = log_reads,
