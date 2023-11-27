@@ -14,6 +14,8 @@ library(edgeR)
 library(TCGAbiolinks)
 library(tidyverse)
 library(stringr)
+library(SummarizedExperiment)
+library(patchwork)
 ```
 
 # Data loading - GSE
@@ -159,13 +161,6 @@ own_path <- "/Users/mathildebechgaard"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 ```
 
-## Load Libraries
-
-```{r}
-library(dplyr)
-library(SummarizedExperiment)
-```
-
 ## Fetch dataset
 
 ```{r}
@@ -244,13 +239,6 @@ saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
-```
-
-## Load Libraries
-
-```{r}
-library(tidyverse)
-library(patchwork)
 ```
 
 ## Fetch datasets
