@@ -24,24 +24,16 @@ format:
 
 -   miRNA and mRNA can serve as biomarkers - these we want to find!
 
-## Data retrieval - GSE
+## GEO data
 
 -   Using the library GEOquery, the data was loaded -\> no need to download any files
 
--   Both primary data and meta data was loaded
-
--   Data was already standardized
-
-## Data description - GSE
+-   Data was already standardized, though we still did some cleaning
 
 |                                         |                                                 |
-|-----------------------------------------|-------------------------------------------------|
+|---------------------------------------|---------------------------------|
 | **miRNA from the GEO data**             | **Frequency of the different states of cancer** |
 | ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png)                |
-
--   Majority of data comes from patients with earlier stage cancer
-
--   The patients are usually elderly people
 
 ## Data analysis - GSE
 
@@ -112,16 +104,14 @@ miRNA_data_cancer <- retrieve_and_prepare_data(
 -   Data tidying -
     -   "*Like families, tidy datasets are all alike but every messy dataset is messy in its own way*"
 -   Data visualizations:
-    -   Number of cancer vs. normal samples
-    -   Gender distribution
-    -   Pathological cancer stages
+    -   Number of cancer vs. normal samples; Gender distribution; Pathological cancer stages
 
 </font>
 
 |                                        |                                                   |
-|----------------------------------------|---------------------------------------------------|
-| **Distribution of Age by Gender**      | **Frequency of AJCC Pathologic Stages by Status** |
-| ![](images/gender_distribution-01.png) | ![](images/cancer_stages.png)                     |
+|:------------------------------:|:--------------------------------------:|
+|   **Distribution of Age by Gender**    | **Frequency of AJCC Pathologic Stages by Status** |
+| ![](images/gender_distribution-01.png) |           ![](images/cancer_stages.png)           |
 
 ## Data preprocess - TCGA
 
@@ -162,7 +152,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 |----------------------------------|---------------------------------|
 | ![](images/stat_table_mirna.png) | ![](images/mirna_aug_table.png) |
 
-## Results (All)
+## Results
 
 <font size="6">
 
@@ -174,7 +164,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 </font>
 
 | TCGA mRNA                | TCGA miRNA                | GSE miRNA                    |
-|--------------------------|---------------------------|------------------------------|
+|------------------------|------------------------|------------------------|
 | ![](images/mrna_vol.png) | ![](images/mirna_vol.png) | ![](images/gse_vol_plot.png) |
 
 ## Results
@@ -186,7 +176,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 </font>
 
 | TCGA mRNA                         | TCGA miRNA                         | GSE miRNA                         |
-|-----------------------------------|------------------------------------|-----------------------------------|
+|------------------------|-------------------------|------------------------|
 | ![](images/TCGA_mRNA_heatmap.png) | ![](images/TCGA_miRNA_heatmap.png) | ![](images/GSE_miRNA_heatmap.png) |
 
 ## Conclusions
