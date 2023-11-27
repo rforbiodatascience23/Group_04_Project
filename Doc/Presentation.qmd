@@ -181,6 +181,8 @@ miRNA_aug
 
 ```
 
-## Conclusions (All)
+## Conclusions
 
-**article suck ass**
+-   The TCGA and GSE datasets have different stages, and the data we used has a different sample size in each stage.
+
+-   Although we were able to follow the article's instructions, there are significant differences in our results. It might be brought on by some extra measures taken during data preprocessing, or by the authors' sparse information. It would be wise to get in touch with the authors to inquire further about preprocessing and data retrieval. Overall, our analysis was carried out accurately, and the results did not indicate any grave errors. In addition data we used has diffrent amount of sample in each stages, and stages differ between TCGA and GSE datasets
