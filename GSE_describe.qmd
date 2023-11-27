@@ -11,10 +11,17 @@ library(tidyverse)
 library(ggplot2)
 ```
 
+## Boxplot
+
+```{r}
+
+
+```
+
 ## Histogram
 
 ```{r}
-gse_plot1 <- patient_stage |>  
+patient_stage |>  
   ggplot(mapping = aes(x = cancer_stage,
          fill = gender)) +
   geom_bar(position = "dodge",
@@ -22,22 +29,4 @@ gse_plot1 <- patient_stage |>
            alpha = 0.5) +
   labs(x = "Cancer stage", y = "Occurences") +
   theme(panel.grid.major.x = element_blank()) 
-```
-
-```{r}
-
-ggplot(patient_stage, aes(x = cancer_stage, fill = cancer_stage)) +
-  geom_bar() +
-  labs(x = "The stages of cancer ", y = "Frequency", title = "Frequency of the different states of cancer") +
-  theme(axis.text.x = element_blank())
-```
-
-## Boxplot
-
-```{r}
-gse_plot2 <- ggplot(patient_stage, aes(x = gender, y = age, fill = gender)) + geom_violin() +
-  labs(x = "", y = "Age", title = "miRNA from the GEO data") +
-  guides(fill = FALSE) +
-  facet_wrap(~ "gender", ncol = 2, scales = "free_x") +
-  geom_boxplot(width=0.1)
 ```

@@ -23,12 +23,3 @@ patient_stage <- readRDS("GSE_data/gse_all_meta_data.RDs") |>
          age = characteristics_ch1.3,
          cancer_stage = characteristics_ch1.4)
 ```
-
-## Saving file
-
-```{r}
-path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
-
-patient_stage <- as.data.frame(patient_stage)
-saveRDS(patient_stage, file = paste0(path, "GSE_data/gse_clean.RDs"))
-```

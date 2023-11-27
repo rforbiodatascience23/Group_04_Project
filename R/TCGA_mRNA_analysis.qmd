@@ -59,9 +59,13 @@ mRNA_box <- mRNA_metadata |>
   geom_boxplot() +
   scale_color_manual(values = c("cancer" = "#f47c6c", 
                                 "normal" = "#13b3ba")) + 
-  labs(title = "Boxplot comparison of total miRNA expression between genders", color = "Tissue Type",
+  labs(title = "Boxplot comparison of total mRNA expression \nbetween genders", color = "Tissue Type",
        x = "Gender",
-       y = "Log2 expression")
+       y = "Log2 expression") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
 ```
 
 ## General expression comparison between cancer and normal tissues
@@ -76,7 +80,7 @@ mRNA_expression <- mRNA_log_long |>
              y = log_reads,
              col = Status)) +
   geom_point() +
-  labs(title = "Comparison of expression of 25 top differentially expressed mRNAs \nbetween cancer and normal TCGA samples", color = "Tissue Type",
+  labs(title = "Comparison of expression of 25 top differentially expressed mRNAs between cancer and normal TCGA samples", color = "Tissue Type",
        x = "mRNA IDs",
        y = "Log2 expression") +
   theme(axis.text.x = element_text(
@@ -84,7 +88,11 @@ mRNA_expression <- mRNA_log_long |>
     hjust = 1),
     plot.title = element_text(
       size = 12, 
-      angle = 0))
+      angle = 0)) +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
 ```
 
 ## Volcano plot
@@ -132,7 +140,11 @@ mrna_vol <- top_genes_stat |>
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_text_repel(data = head(top_genes_stat_subset, 15),
     aes(x = logFC, y = -log10(FDR), label = genes),
-    color = "black")
+    color = "black") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
 ```
 
 ```{r}
