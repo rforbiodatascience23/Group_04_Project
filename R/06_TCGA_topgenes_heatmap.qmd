@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 
 ## Load Libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(ggrepel)
 ```
@@ -76,8 +76,8 @@ mRNA_top_20_expression <- top_genes_choosing(top_genes_stat_mRNA,
 ```
 
 ```{r}
-saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/mRNA_top_expression.RDs"))
-saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/miRNA_top_expression.RDs"))
+saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/data/mRNA_top_expression.RDs"))
+saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/data/miRNA_top_expression.RDs"))
 ```
 
 ## Clean the environment

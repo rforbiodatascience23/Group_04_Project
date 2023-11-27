@@ -11,7 +11,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
 
 ## Loading library
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 ```
 

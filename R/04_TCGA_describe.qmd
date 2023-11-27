@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 
 ## Load Libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(patchwork)
 ```
@@ -29,7 +29,7 @@ mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_
 
 #### Number og Cancer vs. Normal Samples
 
-```{r}
+```{r, warning = FALSE}
 my_colors <- c("Normal" = "cyan3", "Tumor" = "cyan4", "normal" = "cyan3", "cancer" = "cyan4")
 
 plot1 <- ggplot(miRNA_metadata, aes(x = Status, fill = Status)) +

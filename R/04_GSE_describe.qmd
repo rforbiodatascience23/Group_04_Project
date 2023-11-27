@@ -11,7 +11,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
 
 ## Loading libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(ggplot2)
 ```
@@ -46,7 +46,7 @@ gse_plot2
 
 ## Boxplot
 
-```{r}
+```{r, warning = FALSE}
 gse_plot3 <- ggplot(patient_stage, aes(x = gender, y = age, fill = gender)) + geom_violin() +
   labs(x = "", y = "Age", title = "miRNA from the GEO data") +
   guides(fill = FALSE) +

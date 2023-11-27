@@ -18,7 +18,7 @@ source(paste0(own_path, "/group_04_project/project_functions.R"))
 
 ## Loading libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(TCGAbiolinks)
 library(tidyverse)
 library(stringr)
@@ -53,7 +53,7 @@ id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
 
 ### miRNA
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 miRNA_data_normal <- retrieve_and_prepare_data(
   project = "TCGA-COAD",
   data_category = "Transcriptome Profiling",
@@ -64,7 +64,7 @@ miRNA_data_normal <- retrieve_and_prepare_data(
 )
 ```
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 miRNA_data_cancer <- retrieve_and_prepare_data(
   project = "TCGA-COAD",
   data_category = "Transcriptome Profiling",
@@ -87,7 +87,7 @@ miRNA_metadata <- read.delim("clinical.tsv")
 
 ### mRNA
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 mRNA_all <- retrieve_and_prepare_data(
   project = "TCGA-COAD",
   data_category = "Transcriptome Profiling",

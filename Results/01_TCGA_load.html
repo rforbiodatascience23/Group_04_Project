@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>TCGA_data_retrieval</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="01_TCGA_load_files/libs/clipboard/clipboard.min.js"></script>
+<script src="01_TCGA_load_files/libs/quarto-html/quarto.js"></script>
+<script src="01_TCGA_load_files/libs/quarto-html/popper.min.js"></script>
+<script src="01_TCGA_load_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="01_TCGA_load_files/libs/quarto-html/anchor.min.js"></script>
+<link href="01_TCGA_load_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="01_TCGA_load_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="01_TCGA_load_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="01_TCGA_load_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="01_TCGA_load_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">TCGA_data_retrieval</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="data-retrieval" class="level2">
+<h2 class="anchored" data-anchor-id="data-retrieval">Data retrieval:</h2>
+<p>See the README.md file.</p>
+</section>
+<section id="set-working-directory" class="level2">
+<h2 class="anchored" data-anchor-id="set-working-directory">Set Working directory</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>own_path <span class="ot">&lt;-</span> <span class="st">"/Users/mathildebechgaard"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_knit<span class="sc">$</span><span class="fu">set</span>(<span class="at">root.dir =</span> <span class="fu">paste0</span>(own_path, <span class="st">"/group_04_project/data/_raw/"</span>))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">paste0</span>(own_path, <span class="st">"/group_04_project/project_functions.R"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'edgeR' was built under R version 4.3.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: limma</code></pre>
+</div>
+</div>
+</section>
+<section id="loading-libraries" class="level2">
+<h2 class="anchored" data-anchor-id="loading-libraries">Loading libraries</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TCGAbiolinks)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Obtaining the IDs of the patients for whom the RNA expression was registered:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>analyte <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"analyte.tsv"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>RNA_samples <span class="ot">&lt;-</span> <span class="fu">subset</span>(analyte, analyte_type <span class="sc">==</span> <span class="st">"RNA"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>RNA_samples <span class="ot">&lt;-</span> RNA_samples <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tissue_type =</span> <span class="fu">str_sub</span>(sample_submitter_id, <span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="dv">3</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="fu">case_when</span>(tissue_type <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"cancer"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                     (tissue_type <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> tissue_type <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">~</span> <span class="st">"normal"</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.default =</span> <span class="st">"other"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="obtaining-the-ids-of-interest" class="level2">
+<h2 class="anchored" data-anchor-id="obtaining-the-ids-of-interest">Obtaining the IDs of interest</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>id_cancer_patients_normal <span class="ot">&lt;-</span> <span class="fu">get_sample_ids</span>(RNA_samples, <span class="at">sample_type =</span> <span class="st">"normal"</span>, <span class="at">num_samples =</span> <span class="dv">100</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>id_cancer_patients_cancer <span class="ot">&lt;-</span> <span class="fu">get_sample_ids</span>(RNA_samples, <span class="at">sample_type =</span> <span class="st">"cancer"</span>, <span class="at">num_samples =</span> <span class="dv">100</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>id_cancer_patients <span class="ot">&lt;-</span> <span class="fu">c</span>(id_cancer_patients_normal, id_cancer_patients_cancer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="retrieving-datasets-from-tcga" class="level2">
+<h2 class="anchored" data-anchor-id="retrieving-datasets-from-tcga">Retrieving datasets from TCGA</h2>
+<section id="mirna" class="level3">
+<h3 class="anchored" data-anchor-id="mirna">miRNA</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>miRNA_data_normal <span class="ot">&lt;-</span> <span class="fu">retrieve_and_prepare_data</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> <span class="st">"TCGA-COAD"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_category =</span> <span class="st">"Transcriptome Profiling"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_type =</span> <span class="st">"miRNA Expression Quantification"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">workflow_type =</span> <span class="st">"BCGSC miRNA Profiling"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_cancer_patients =</span> id_cancer_patients_normal,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">directory_prefix =</span> <span class="st">"samples_miRNA"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |=========                                                             |  12%
+  |                                                                            
+  |==================                                                    |  25%
+  |                                                                            
+  |==========================                                            |  38%
+  |                                                                            
+  |===================================                                   |  50%
+  |                                                                            
+  |============================================                          |  62%
+  |                                                                            
+  |====================================================                  |  75%
+  |                                                                            
+  |=============================================================         |  88%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>miRNA_data_cancer <span class="ot">&lt;-</span> <span class="fu">retrieve_and_prepare_data</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> <span class="st">"TCGA-COAD"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_category =</span> <span class="st">"Transcriptome Profiling"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_type =</span> <span class="st">"miRNA Expression Quantification"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">workflow_type =</span> <span class="st">"BCGSC miRNA Profiling"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_cancer_patients =</span> id_cancer_patients_cancer,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">directory_prefix =</span> <span class="st">"samples_miRNA"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |==                                                                    |   3%
+  |                                                                            
+  |====                                                                  |   6%
+  |                                                                            
+  |=======                                                               |   9%
+  |                                                                            
+  |=========                                                             |  12%
+  |                                                                            
+  |===========                                                           |  16%
+  |                                                                            
+  |=============                                                         |  19%
+  |                                                                            
+  |===============                                                       |  22%
+  |                                                                            
+  |==================                                                    |  25%
+  |                                                                            
+  |====================                                                  |  28%
+  |                                                                            
+  |======================                                                |  31%
+  |                                                                            
+  |========================                                              |  34%
+  |                                                                            
+  |==========================                                            |  38%
+  |                                                                            
+  |============================                                          |  41%
+  |                                                                            
+  |===============================                                       |  44%
+  |                                                                            
+  |=================================                                     |  47%
+  |                                                                            
+  |===================================                                   |  50%
+  |                                                                            
+  |=====================================                                 |  53%
+  |                                                                            
+  |=======================================                               |  56%
+  |                                                                            
+  |==========================================                            |  59%
+  |                                                                            
+  |============================================                          |  62%
+  |                                                                            
+  |==============================================                        |  66%
+  |                                                                            
+  |================================================                      |  69%
+  |                                                                            
+  |==================================================                    |  72%
+  |                                                                            
+  |====================================================                  |  75%
+  |                                                                            
+  |=======================================================               |  78%
+  |                                                                            
+  |=========================================================             |  81%
+  |                                                                            
+  |===========================================================           |  84%
+  |                                                                            
+  |=============================================================         |  88%
+  |                                                                            
+  |===============================================================       |  91%
+  |                                                                            
+  |==================================================================    |  94%
+  |                                                                            
+  |====================================================================  |  97%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>miRNA_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(miRNA_data_cancer, miRNA_data_normal)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="fetch-mirna-metadataset" class="level2">
+<h2 class="anchored" data-anchor-id="fetch-mirna-metadataset">Fetch miRNA metadataset</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>miRNA_metadata <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"clinical.tsv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="mrna" class="level3">
+<h3 class="anchored" data-anchor-id="mrna">mRNA</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>mRNA_all <span class="ot">&lt;-</span> <span class="fu">retrieve_and_prepare_data</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> <span class="st">"TCGA-COAD"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_category =</span> <span class="st">"Transcriptome Profiling"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_type =</span> <span class="st">"Gene Expression Quantification"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">workflow_type =</span> <span class="st">"STAR - Counts"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_cancer_patients =</span> id_cancer_patients,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">directory_prefix =</span> <span class="st">"samples_mRNA"</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+|                                                    |  0%                      
+|                                                    |0.9009009% ~13 s remaining
+|                                                    |1.801802% ~9 s remaining  
+|=                                                   |2.702703% ~11 s remaining 
+|=                                                   |3.603604% ~10 s remaining 
+|==                                                  |4.504505% ~9 s remaining  
+|==                                                  |5.405405% ~8 s remaining  
+|===                                                 |6.306306% ~8 s remaining  
+|===                                                 |7.207207% ~8 s remaining  
+|====                                                |8.108108% ~7 s remaining  
+|====                                                |9.009009% ~7 s remaining  
+|=====                                               |9.90991% ~11 s remaining  
+|=====                                               |10.81081% ~11 s remaining 
+|======                                              |11.71171% ~10 s remaining 
+|======                                              |12.61261% ~10 s remaining 
+|=======                                             |13.51351% ~9 s remaining  
+|=======                                             |14.41441% ~9 s remaining  
+|=======                                             |15.31532% ~9 s remaining  
+|========                                            |16.21622% ~8 s remaining  
+|========                                            |17.11712% ~8 s remaining  
+|=========                                           |18.01802% ~8 s remaining  
+|=========                                           |18.91892% ~8 s remaining  
+|==========                                          |19.81982% ~9 s remaining  
+|==========                                          |20.72072% ~9 s remaining  
+|===========                                         |21.62162% ~9 s remaining  
+|===========                                         |22.52252% ~8 s remaining  
+|============                                        |23.42342% ~8 s remaining  
+|============                                        |24.32432% ~8 s remaining  
+|=============                                       |25.22523% ~8 s remaining  
+|=============                                       |26.12613% ~8 s remaining  
+|==============                                      |27.02703% ~7 s remaining  
+|==============                                      |27.92793% ~7 s remaining  
+|==============                                      |28.82883% ~7 s remaining  
+|===============                                     |29.72973% ~7 s remaining  
+|===============                                     |30.63063% ~7 s remaining  
+|================                                    |31.53153% ~7 s remaining  
+|================                                    |32.43243% ~7 s remaining  
+|=================                                   |33.33333% ~7 s remaining  
+|=================                                   |34.23423% ~7 s remaining  
+|==================                                  |35.13514% ~7 s remaining  
+|==================                                  |36.03604% ~7 s remaining  
+|===================                                 |36.93694% ~7 s remaining  
+|===================                                 |37.83784% ~6 s remaining  
+|====================                                |38.73874% ~6 s remaining  
+|====================                                |39.63964% ~6 s remaining  
+|=====================                               |40.54054% ~6 s remaining  
+|=====================                               |41.44144% ~6 s remaining  
+|======================                              |42.34234% ~6 s remaining  
+|======================                              |43.24324% ~6 s remaining  
+|======================                              |44.14414% ~5 s remaining  
+|=======================                             |45.04505% ~5 s remaining  
+|=======================                             |45.94595% ~5 s remaining  
+|========================                            |46.84685% ~6 s remaining  
+|========================                            |47.74775% ~5 s remaining  
+|=========================                           |48.64865% ~5 s remaining  
+|=========================                           |49.54955% ~5 s remaining  
+|==========================                          |50.45045% ~5 s remaining  
+|==========================                          |51.35135% ~5 s remaining  
+|===========================                         |52.25225% ~5 s remaining  
+|===========================                         |53.15315% ~5 s remaining  
+|============================                        |54.05405% ~5 s remaining  
+|============================                        |54.95495% ~4 s remaining  
+|=============================                       |55.85586% ~4 s remaining  
+|=============================                       |56.75676% ~4 s remaining  
+|=============================                       |57.65766% ~4 s remaining  
+|==============================                      |58.55856% ~4 s remaining  
+|==============================                      |59.45946% ~4 s remaining  
+|===============================                     |60.36036% ~4 s remaining  
+|===============================                     |61.26126% ~4 s remaining  
+|================================                    |62.16216% ~4 s remaining  
+|================================                    |63.06306% ~3 s remaining  
+|=================================                   |63.96396% ~4 s remaining  
+|=================================                   |64.86486% ~4 s remaining  
+|==================================                  |65.76577% ~3 s remaining  
+|==================================                  |66.66667% ~3 s remaining  
+|===================================                 |67.56757% ~3 s remaining  
+|===================================                 |68.46847% ~3 s remaining  
+|====================================                |69.36937% ~3 s remaining  
+|====================================                |70.27027% ~3 s remaining  
+|=====================================               |71.17117% ~3 s remaining  
+|=====================================               |72.07207% ~3 s remaining  
+|=====================================               |72.97297% ~3 s remaining  
+|======================================              |73.87387% ~3 s remaining  
+|======================================              |74.77477% ~2 s remaining  
+|=======================================             |75.67568% ~2 s remaining  
+|=======================================             |76.57658% ~2 s remaining  
+|========================================            |77.47748% ~2 s remaining  
+|========================================            |78.37838% ~2 s remaining  
+|=========================================           |79.27928% ~2 s remaining  
+|=========================================           |80.18018% ~2 s remaining  
+|==========================================          |81.08108% ~2 s remaining  
+|==========================================          |81.98198% ~2 s remaining  
+|===========================================         |82.88288% ~2 s remaining  
+|===========================================         |83.78378% ~1 s remaining  
+|============================================        |84.68468% ~1 s remaining  
+|============================================        |85.58559% ~1 s remaining  
+|============================================        |86.48649% ~1 s remaining  
+|=============================================       |87.38739% ~1 s remaining  
+|=============================================       |88.28829% ~1 s remaining  
+|==============================================      |89.18919% ~1 s remaining  
+|==============================================      |90.09009% ~1 s remaining  
+|===============================================     |90.99099% ~1 s remaining  
+|===============================================     |91.89189% ~1 s remaining  
+|================================================    |92.79279% ~1 s remaining  
+|================================================    |93.69369% ~1 s remaining  
+|=================================================   |94.59459% ~1 s remaining  
+|=================================================   |95.4955% ~0 s remaining   
+|==================================================  |96.3964% ~0 s remaining   
+|==================================================  |97.2973% ~0 s remaining   
+|=================================================== |98.1982% ~0 s remaining   
+|=================================================== |99.0991% ~0 s remaining   
+|====================================================|100% ~0 s remaining       
+|====================================================|100%                      Completed after 9 s </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">citation</span>(<span class="st">"TCGAbiolinks"</span>), <span class="at">bibtex=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>To cite TCGAbiolinks in publications use: Please, also consider citing:
+
+  Antonio Colaprico, Tiago Chedraoui Silva, Catharina Olsen, Luciano
+  Garofano, Claudia Cava, Davide Garolini, Thais Sabedot, Tathiane
+  Malta, Stefano M. Pagnotta, Isabella Castiglioni,Michele Ceccarelli,
+  Gianluca Bontempi Houtan Noushmehr. TCGAbiolinks: An R/Bioconductor
+  package for integrative analysis of TCGA data Nucleic Acids Research
+  (05 May 2016) 44 (8): e71. (doi:10.1093/nar/gkv1507)
+
+A BibTeX entry for LaTeX users is
+
+  @Article{,
+    title = { TCGAbiolinks: An R/Bioconductor package for integrative analysis of TCGA data},
+    author = {Antonio Colaprico and Tiago Chedraoui Silva and Catharina Olsen and Luciano Garofano and Claudia Cava and Davide Garolini and Thais Sabedot and Tathiane M. Malta and Stefano M. Pagnotta and Isabella Castiglioni and Michele Ceccarelli and Gianluca Bontempi and Houtan Noushmehr},
+    journal = {Nucleic Acids Research},
+    year = {2015},
+    journal = {Nucleic Acids Research},
+    doi = {10.1093/nar/gkv1507},
+    url = {http://doi.org/10.1093/nar/gkv1507},
+  }
+
+  Silva, Tiago C., et al. "TCGA Workflow: Analyze cancer genomics and
+  epigenomics data using Bioconductor packages." F1000Research 5
+  (2016).
+
+A BibTeX entry for LaTeX users is
+
+  @Article{,
+    title = {TCGA Workflow: Analyze cancer genomics and epigenomics data using Bioconductor packages},
+    author = {{Silva} and Tiago C and {Colaprico} and {Antonio} and {Olsen} and {Catharina} and {D'Angelo} and {Fulvio} and {Bontempi} and {Gianluca} and {Ceccarelli} and {Michele} and {Noushmehr} and {Houtan}},
+    journal = {F1000Research},
+    volume = {5},
+    year = {2016},
+    publisher = {Faculty of 1000 Ltd},
+  }
+
+  Mounir, Mohamed, et al. "New functionalities in the TCGAbiolinks
+  package for the study and integration of cancer data from GDC and
+  GTEx." PLoS computational biology 15.3 (2019): e1006701.
+
+A BibTeX entry for LaTeX users is
+
+  @Article{,
+    title = {New functionalities in the TCGAbiolinks package for the study and integration of cancer data from GDC and GTEx},
+    author = {{Mounir} and {Mohamed} and {Lucchetta} and {Marta} and {Silva} and Tiago C and {Olsen} and {Catharina} and {Bontempi} and {Gianluca} and {Chen} and {Xi} and {Noushmehr} and {Houtan} and {Colaprico} and {Antonio} and {Papaleo} and {Elena}},
+    journal = {PLoS computational biology},
+    volume = {15},
+    number = {3},
+    pages = {e1006701},
+    year = {2019},
+    publisher = {Public Library of Science},
+  }</code></pre>
+</div>
+</div>
+</section>
+<section id="save-data-files" class="level2">
+<h2 class="anchored" data-anchor-id="save-data-files">Save data files</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(miRNA_data, <span class="at">file =</span> <span class="fu">paste0</span>(own_path, <span class="st">"/group_04_project/data/miRNA_data_load.RDS"</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(miRNA_metadata, <span class="at">file =</span> <span class="fu">paste0</span>(own_path, <span class="st">"/group_04_project/data/miRNA_metadata_load.RDS"</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(mRNA_all, <span class="at">file =</span> <span class="fu">paste0</span>(own_path, <span class="st">"/group_04_project/data/mRNA_all_load.RDS"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="clean-environment" class="level2">
+<h2 class="anchored" data-anchor-id="clean-environment">Clean environment</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

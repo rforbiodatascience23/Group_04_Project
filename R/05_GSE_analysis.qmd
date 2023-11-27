@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
 
 ## Libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(limma)
 library(ggrepel)
@@ -108,7 +108,7 @@ full_results <- topTable(fit2, number=Inf)
 
 Results of our analysis are added to the data set and volcano plot was generated to show Diferentially Expressed genes.
 
-```{r}
+```{r, warning = FALSE}
 full_results <- full_results |>
   tibble::rownames_to_column(var = "ID")
 
@@ -168,11 +168,11 @@ top_20_genes <- high_expressed_genes |>
 
 ## Saving Files
 
-```{r}
-saveRDS(gse_results, file = paste0(own_path, "group_04_project/results/gse_results.rds"))
-saveRDS(high_expressed_genes, file = paste0(own_path, "group_04_project/results/gse_expressed_genes.rds"))
-saveRDS(top_20_genes, file = paste0(own_path, "group_04_project/results/gse_top_20.rds"))
-saveRDS(top_20_genes, file = paste0(own_path, "group_04_project/results/gse_top_20.rds"))
+```{r, warning = FALSE}
+saveRDS(gse_results, file = paste0(own_path, "group_04_project/data/gse_results.rds"))
+saveRDS(high_expressed_genes, file = paste0(own_path, "group_04_project/data/gse_expressed_genes.rds"))
+saveRDS(top_20_genes, file = paste0(own_path, "group_04_project/data/gse_top_20.rds"))
+saveRDS(top_20_genes, file = paste0(own_path, "group_04_project/data/gse_top_20.rds"))
 ggsave(file = paste0(own_path, "group_04_project/results/images/gse_vol_plot.png"), plot = gse_vol, width = 14, height = 8.4, units = "in")
 ```
 

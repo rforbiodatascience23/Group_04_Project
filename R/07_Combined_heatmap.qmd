@@ -1,5 +1,5 @@
 ---
-title: "TCGA_Heatmap"
+title: "Combined_Heatmap"
 format: html
 editor: visual
 ---
@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 
 ## Load Libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(ggplot2)
 library(reshape2)
@@ -22,14 +22,14 @@ library(reshape2)
 ## Fetch dataset
 
 ```{r}
-gse_miRNA <- readRDS(paste0(own_path, "/group_04_project/results/gse_top_20.rds"))
-TCGA_miRNA <- readRDS(paste0(own_path, "/group_04_project/results/miRNA_top_expression.rds"))
-TCGA_mRNA <- readRDS(paste0(own_path, "/group_04_project/results/mRNA_top_expression.rds"))
+gse_miRNA <- readRDS(paste0(own_path, "/group_04_project/data/gse_top_20.rds"))
+TCGA_miRNA <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_expression.rds"))
+TCGA_mRNA <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_top_expression.rds"))
 ```
 
 ## Transform data for visualization
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 GSE_miRNA <- gse_miRNA |>
   mutate(across(where(is.numeric), ~log2(. + 1)))
 

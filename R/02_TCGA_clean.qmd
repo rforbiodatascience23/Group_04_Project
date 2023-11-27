@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 
 ## Load Libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(dplyr)
 library(SummarizedExperiment)
 ```

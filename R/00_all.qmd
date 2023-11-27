@@ -1,0 +1,43 @@
+---
+title: "00_better"
+format: html
+editor: visual
+---
+
+```{r}
+
+# Install and load the quarto package
+if (!requireNamespace("quarto", quietly = TRUE)) {
+  install.packages("quarto")
+}
+library(quarto)
+
+# Set the working directory to the location of your Quarto files
+scripts_directory <- "/Users/mathildebechgaard/group_04_project/R"
+setwd(scripts_directory)
+
+# List all Quarto files in the directory
+qmd_files <- list.files(pattern = "\\.qmd$", full.names = TRUE)
+qmd_files <- qmd_files[-1]
+
+# Output HTML file
+output_html <- "../results/00_all.html"
+
+# Loop through each Quarto file, knit and append to the HTML document
+for (qmd_file in qmd_files) {
+  # Knit the Quarto to HTML
+  quarto::quarto_render(input = qmd_file, output = "temp_output.html", output_format = "html")
+
+  
+  # Append the HTML content to the combined output
+  cat(readLines("temp_output.html"), file = output_html, sep = "\n", append = TRUE)
+  
+  # Delete the temporary HTML file
+  file.remove("temp_output.html")
+}
+
+# Optionally, you can open the final HTML document in a web browser
+browseURL(paste0("file://", file.path(getwd(), output_html)))
+
+
+```

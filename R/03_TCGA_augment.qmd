@@ -6,7 +6,7 @@ editor: visual
 
 ## Set Working directory
 
-```{r setup}
+```{r setup, message = FALSE, warning = FALSE}
 own_path <- "/Users/mathildebechgaard"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
@@ -14,7 +14,7 @@ source(paste0(own_path, "/group_04_project/project_functions.R"))
 
 ## Load Libraries
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(edgeR)
 library(tibble)
 library(statmod)
