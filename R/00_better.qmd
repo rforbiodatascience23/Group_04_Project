@@ -1,0 +1,29 @@
+---
+title: "00_better"
+format: html
+editor: visual
+---
+
+## Data retrieval
+
+{{< include GSE_load.qmd >}}
+
+{{< include GSE_clean.qmd>}}
+
+{{< include TCGA_load.qmd>}}
+
+{{< include TCGA_clean.qmd>}}
+
+{{< include TCGA_describe.qmd>}}
+
+{{< include TCGA_augument.qmd>}}
+
+{{< include GSE_analysis.qmd>}}
+
+{{< include TCGA_mRNA_analysis.qmd>}}
+
+{{< include TCGA_miRNA_analysis.qmd>}}
+
+{{< include TCGA_topgenes_heatmap.qmd>}}
+
+{{< include Combined_heatmap.qmd>}}
