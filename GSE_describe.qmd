@@ -1,0 +1,36 @@
+---
+title: "Describe"
+format: html
+editor: visual
+---
+
+## Loading libraries
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+## Boxplot
+
+```{r}
+
+#two boxplots (male/female) per cancer stage
+
+patient_stage |> 
+  ggplot(mapping = aes(x = cancer_stage, fill = gender)) + facet.wrap(~ cancer_stage) +
+  geom_boxplot()
+```
+
+## Histogram
+
+```{r}
+patient_stage |>  
+  ggplot(mapping = aes(x = cancer_stage,
+         fill = gender)) +
+  geom_bar(position = "dodge",
+           colour = "black",
+           alpha = 0.5) +
+  labs(x = "Cancer stage", y = "Occurences") +
+  theme(panel.grid.major.x = element_blank()) 
+```
