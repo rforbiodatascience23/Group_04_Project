@@ -1,0 +1,141 @@
+---
+title: "GSE_data_analysis"
+format: html
+editor: visual
+---
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(limma)
+```
+
+## Loading Data
+
+```{r}
+
+```
+
+## Data analysis
+
+at first only necessary rows with gene_id and data were selected. Then log2 transformation was done, with omiting negative values and 0's
+
+```{r}
+exp_data[which(exp_data <= 0)] <- NaN
+exp_log <- log2(exp_data) # log2 transform
+
+exp_log <- normalizeBetweenArrays(exp_log) # normalize data
+
+exp_log  <- exp_log [complete.cases(exp_log), ]
+
+boxplot(exp_log, outline = FALSE)
+
+```
+
+```{r}
+
+design <- data.frame(
+  Normal = c(rep(1, 11), rep(0, 88)),
+  Tumour = c(rep(0, 11), rep(1, 88))
+)
+
+design <- as.matrix(design)
+```
+
+next we will cut off genes that are not expressed in most of the samples, in our case 97
+
+```{r}
+cutoff <- median(exp_log)
+
+is_expressed <- exp_log > cutoff
+
+keep <- rowSums(is_expressed) > 5
+
+diff_expressed_genes <- exp_log[keep, ]
+
+```
+
+Next step is to fit linear model and to make 2 subgroups - Tumour and Normal, and perform *empirical Bayes'* step to get statistics and p-values.\
+\
+
+```{r}
+fit <- lmFit(diff_expressed_genes, design)
+
+contrasts <- makeContrasts(Tumour - Normal, levels=design)
+
+fit2 <- contrasts.fit(fit, contrasts)
+
+fit2 <- eBayes(fit2)
+
+topTable(fit2)
+```
+
+Now we will check which test we have to perform for our datset\
+\
+
+```{r}
+decideTests(fit2)
+table(decideTests(fit2))
+```
+
+```{r}
+aw <- arrayWeights(diff_expressed_genes, design)
+fit <- lmFit(diff_expressed_genes, design,cweights = aw)
+contrasts <- makeContrasts(Tumour - Normal, levels=design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+full_results <- topTable(fit2, number=Inf)
+
+```
+
+```{r}
+full_results <- full_results |>
+  tibble::rownames_to_column(var = "ID")
+
+mirna_results <- mirna_exp |>
+  tibble::rownames_to_column(var = "ID") |>
+  inner_join(full_results, by = "ID")
+
+p_cutoff <- 0.05
+fc_cutoff <- 1
+
+
+
+full_results |>
+  mutate(Significant = adj.P.Val < p_cutoff & abs(logFC) > fc_cutoff) |>
+  ggplot(aes(x = logFC, y = -log10(adj.P.Val))) +
+  geom_point(data = subset(full_results, logFC < 0), col = "blue", alpha = 0.5) +
+  geom_point(data = subset(full_results, logFC > 0), col = "red", alpha = 0.5) +
+  geom_point(data = subset(full_results, logFC >= -1 & logFC <= 1), col = "gray") +
+  geom_vline(xintercept = c(-fc_cutoff, fc_cutoff), linetype = "dashed") +
+  geom_hline(yintercept = -log10(p_cutoff), linetype = "dashed") +
+  geom_text(
+    data = mirna_results,
+    aes(label = ifelse(abs(logFC) > 1.5, as.character(GENE_NAME), '')),
+    vjust = 0, hjust = 0, check_overlap = FALSE, size = 1.5)+
+geom_text_repel(data = subset(data, diffcol != "NO"), aes(label = label), 
+               box.padding = unit(0.2, "lines")) +
+
+
+
+```
+
+```{r}
+high_expressed_genes <- mirna_results |>
+  filter(abs(logFC) > 1) |>
+  slice(-14) |>
+  inner_join(mirna_exp, by = "GENE_NAME", copy = FALSE) |>
+  distinct(GENE_NAME, .keep_all = FALSE)
+
+target_mirna <- mirna_exp |>
+  filter(GENE_NAME %in% high_expressed_genes$GENE_NAME)|>
+  distinct(GENE_NAME, .keep_all = TRUE)
+```
+
+## Deleting files
+
+```{r}
+objects_to_keep <- ls(pattern = "target_mirna")
+rm(list = setdiff(ls(), objects_to_keep))
+```
