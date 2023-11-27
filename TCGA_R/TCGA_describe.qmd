@@ -49,10 +49,10 @@ plot2 <- ggplot(mRNA_metadata, aes(x = Status, fill = Status)) +
   coord_cartesian(ylim = c(0, 75)) +
   facet_wrap(~ "Diagnosis", ncol = 2, scales = "free_x")
 
-combined_plot <- plot1 + plot2 + plot_layout(ncol = 2) +
+cancer_vs_normal <- plot1 + plot2 + plot_layout(ncol = 2) +
   plot_annotation(title = "Frequency of Cases by Category", theme = theme(plot.title = element_text(hjust = 0.5)))
 
-combined_plot
+cancer_vs_normal
 
 ```
 
@@ -71,10 +71,10 @@ plot2 <- ggplot(mRNA_metadata, aes(x = gender, y = age_at_index, fill = gender))
   facet_wrap(~ "Gender", ncol = 2, scales = "free_x")
 
 # Combine plots using patchwork and add a main title
-combined_plot <- plot1 + plot2 + plot_layout(ncol = 2) +
+gender_distribution <- plot1 + plot2 + plot_layout(ncol = 2) +
   plot_annotation(title = "Distribution of Age by Gender", theme = theme(plot.title = element_text(hjust = 0.5)))
 
-combined_plot
+gender_distribution
 ```
 
 #### Cancer stages
@@ -83,8 +83,24 @@ combined_plot
 cancer_stage <- vctrs::vec_c(miRNA_metadata$ajcc_pathologic_stage, mRNA_metadata$ajcc_pathologic_stage)
 cancer_stage_df <- data.frame(stage = unlist(cancer_stage))
 
-ggplot(cancer_stage_df, aes(x = stage, fill = stage)) +
+cancer_stages <- ggplot(cancer_stage_df, aes(x = stage, fill = stage)) +
   geom_bar() +
   labs(x = "AJCC Pathologic Stage", y = "Frequency", title = "Frequency of AJCC Pathologic Stages by Status") +
   theme(axis.text.x = element_blank())
+
+cancer_stages
+```
+
+## Save plots
+
+```{r}
+ggsave(file.path("../Doc/images/", "cancer_vs_normal.png"), cancer_vs_normal, width = 10, height = 6, units = "in")
+ggsave(file.path("../Doc/images/", "gender_distribution.png"), gender_distribution, width = 10, height = 6, units = "in")
+ggsave(file.path("../Doc/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
+```
+
+## Clean environment
+
+```{r}
+rm(list = ls())
 ```

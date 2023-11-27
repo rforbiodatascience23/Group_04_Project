@@ -44,10 +44,10 @@ library(tidyverse)
 library(limma)
 library(ggrepel)
 
-path <- "C:/Users/Konrad/Documents/group_04_project/Results"
+path <- "/Users/mathildebechgaard/group_04_project/Results"
 
-exp_gse_results <- readRDS("C:/Users/Konrad/Documents/group_04_project/GSE_data/gse_expressed_data.RDs")
-mirna_exp <- readRDS("C:/Users/Konrad/Documents/group_04_project/GSE_data/gse_all_data.RDs")
+exp_gse_results <- readRDS("/Users/mathildebechgaard/group_04_project/GSE_data/gse_expressed_data.RDs")
+mirna_exp <- readRDS("/Users/mathildebechgaard/group_04_project/GSE_data/gse_all_data.RDs")
 ```
 
 ## Analysis was performed only with *limma* package, with manner similar to the methodology presented in the article
@@ -190,10 +190,155 @@ top_20_genes <- high_expressed_genes |>
 
 ## Data retrieval - TCGA (Mathilde)
 
-```{r}
-#| echo: false
+-   Setting path to /TCGA_data/\_raw folder
 
+    -   analyte.tsv & clinical.tsv
+
+    -   Obtain IDs of the patients for whom the RNA expression was registered
+
+-   Library ***TCGABiolinks*** is used to retrieve data from the GDC data portal
+
+-   Retrieve and prepare function with GDCquery and GDCdownload
+
+```{r}
+#| eval: false
+#| echo: true
+retrieve_and_prepare_data <- function(
+  project,
+  data_category,
+  data_type,
+  workflow_type,
+  id_cancer_patients,
+  directory_prefix,
+  use_prepare = TRUE
+) {
+  # Query to specify the data to get
+  query <- GDCquery(
+    project = project,
+    data.category = data_category,
+    data.type = data_type,
+    workflow.type = workflow_type,
+    barcode = id_cancer_patients
+  )
+
+  # Downloading the samples
+  GDCdownload(
+    query = query,
+    method = "api",
+    directory = paste0(directory_prefix, "_", project),
+    files.per.chunk = 50
+  )
+
+  # Preparing data in case of miRNAs
+  if (use_prepare) {
+    data <- GDCprepare(query, directory = paste0(directory_prefix, "_", project))
+  } else {
+    data <- NULL
+  }
+  return(data)
+}
 ```
+
+## Data retrieval - TCGA (Mathilde)
+
+-   Fetch miRNA data:
+
+```{r}
+#| eval: false
+#| echo: true
+miRNA_data_cancer <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients_cancer,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+-   Fetch mRNA data:
+
+```{r}
+#| eval: false
+#| echo: true
+mRNA_all <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "Gene Expression Quantification",
+  workflow_type = "STAR - Counts",
+  id_cancer_patients = id_cancer_patients,
+  directory_prefix = "samples_mRNA"
+)
+```
+
+-   Files were saved to TCGA_data/
+
+## Data tidying - TCGA (Mathilde)
+
+-   miRNA data:
+
+Picture instead
+
+```{r}
+#| eval: false
+#| echo: false
+miRNA_data <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/miRNA_data_load.RDS")
+miRNA_data
+```
+
+```{r}
+#| eval: false
+#| echo: false
+miRNA_metadata <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/miRNA_metadata_load.RDS")
+miRNA_metadata
+```
+
+## Data tidying - TCGA (Mathilde)
+
+-   mRNA data:
+
+Picture instead
+
+```{r}
+#| eval: false
+#| echo: false
+mRNA_all <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/mRNA_all_load.RDS")
+mRNA_all
+```
+
+-   Library ***SummarizedExperiment***
+
+```{r}
+#| eval: false
+#| echo: false
+mRNA_data <- as.data.frame(assay(mRNA_all))
+mRNA_data
+```
+
+```{r}
+#| eval: false
+#| echo: false
+mRNA_metadata <- as.data.frame(colData(mRNA_all))
+mRNA_metadata
+```
+
+## Data description - TCGA (Mathilde)
+
+-   Number og Cancer vs. Normal Samples
+
+![](images/cancer_vs_normal.png){fig-align="center"}
+
+## Data description - TCGA (Mathilde)
+
+-   Gender distribution
+
+![](images/gender_distribution.png){fig-align="center" width="477"}
+
+## Data description - TCGA (Mathilde)
+
+-   Cancer stages
+
+![](images/cancer_stages.png){fig-align="center" width="473"}
 
 ## Data preprocess - TCGA (Ksenia)
 
@@ -206,7 +351,7 @@ library(tibble)
 ```{r}
 #| eval: false
 #| echo: false
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+own_path <- "/Users/mathildebechgaard/"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 ```
 
@@ -220,11 +365,11 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/")
 ```{r}
 #| eval: true
 #| echo: false
-
+own_path <- "/Users/mathildebechgaard/"
 miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDS"))
 mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
 
-print(miRNA_data){fig-align="left"}
+print(miRNA_data)
 ```
 
 ```{r}
@@ -305,7 +450,7 @@ Statistics table:
 ```{r}
 #| eval: true
 #| echo: false
-miRNA_top_genes_stat <- readRDS("/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS") |> tibble()
+miRNA_top_genes_stat <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS") |> tibble()
 miRNA_top_genes_stat
 ```
 
