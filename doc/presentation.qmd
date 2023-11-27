@@ -12,7 +12,9 @@ format:
     footer: R for Bio Data Science
 ---
 
-## ![](images/Introduction - Article.png)Introduction
+## Introduction
+
+![](images/Introduction - Article.png)
 
 -   CRC has the 3^rd^ highest mortality rate
 
@@ -22,15 +24,11 @@ format:
 
 -   miRNA and mRNA can serve as biomarkers - these we want to find!
 
-## Data retrieval - GSE
+## GEO data
 
 -   Using the library GEOquery, the data was loaded -\> no need to download any files
 
--   Both primary data and meta data was loaded
-
--   Data was already standardized
-
-## Data description - GSE
+-   Both primary data and meta data was loaded and data was already standardized, though we still cleaned the data further
 
 |                                         |                                                 |
 |---------------------------------------|---------------------------------|
