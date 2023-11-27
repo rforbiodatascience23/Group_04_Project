@@ -11,10 +11,12 @@ library(GEOquery)
 library(limma)
 library(tidyverse)
 library(edgeR)
-
+library(TCGAbiolinks)
+library(tidyverse)
+library(stringr)
 ```
 
-## Loading data
+# Data loading - GSE
 
 ```{r}
 gse_data <- getGEO(GEO = "GSE39833")[[1]]
@@ -61,26 +63,296 @@ saveRDS(metadata, file = paste0(path, "/GSE_data/gse_all_meta_data.RDs"))
 
 ```
 
-# TCGA Part
+# Data Loading - TCGA
 
----
-title: "GSE_gse_results_analysis"
-output:
-  html_document:
-    toc: true
-output_dir: "C:/Users/Konrad/Documents/group_04_project/Doc"
----
+## Data retrieval:
 
-## Libraries
+See the README.md file.
 
-```{r}
+## Set Working directory
 
-library(tidyverse)
-library(limma)
-library(ggrepel)
+```{r setup}
+own_path <- "/Users/kseniakirdey"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/_raw/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
-## Loading gse_results
+## Loading libraries
+
+Obtaining the IDs of the patients for whom the RNA expression was registered:
+
+```{r}
+analyte <- read.delim("analyte.tsv")
+
+RNA_samples <- subset(analyte, analyte_type == "RNA")
+
+RNA_samples <- RNA_samples |>
+  mutate(tissue_type = str_sub(sample_submitter_id, -3, -3)) |>
+  mutate(
+    type = case_when(tissue_type == 0 ~ "cancer",
+                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
+                     .default = "other")
+  ) |>
+  arrange(type)
+```
+
+## Obtaining the IDs of interest
+
+```{r}
+id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 50)
+id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 50)
+id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
+```
+
+## Retrieving datasets from TCGA
+
+### miRNA
+
+```{r}
+miRNA_data <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+## Fetch miRNA metadataset
+
+```{r}
+miRNA_metadata <- read.delim("clinical.tsv")
+```
+
+### mRNA
+
+```{r}
+mRNA_all <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "Gene Expression Quantification",
+  workflow_type = "STAR - Counts",
+  id_cancer_patients = id_cancer_patients,
+  directory_prefix = "samples_mRNA"
+)
+```
+
+## References
+
+```{r}
+print(citation("TCGAbiolinks"), bibtex=TRUE)
+```
+
+## Save data files
+
+```{r}
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
+saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+```
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(dplyr)
+library(SummarizedExperiment)
+```
+
+## Fetch dataset
+
+```{r}
+mRNA_all <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
+```
+
+## Tidy miRNA data
+
+```{r}
+miRNA_data <- miRNA_data |>
+  select(-starts_with("cross-mapped")) |>
+  select(-starts_with("reads_per_million")) |>
+  rename_with(~gsub("^read_count_", "", .x), starts_with("read_count_")) |>
+  rename_all(~ substr(., 1, 16))
+```
+
+## Tidy miRNA metadata
+
+```{r}
+miRNA_metadata <- miRNA_metadata |>
+  filter(case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12)) |>
+  mutate(across(everything(), ~ifelse(. == "'--", NA, .))) |>
+  select(-where(~all(is.na(.))),-treatment_type, -treatment_or_therapy)
+
+miRNA_metadata <- unique(miRNA_metadata)
+
+miRNA_metadata <- miRNA_metadata |>
+  mutate(case_submitter_id = ifelse(
+    case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12),
+    names(miRNA_data)[-1],
+    case_submitter_id))
+```
+
+## Alter column data types
+
+```{r}
+miRNA_metadata <- miRNA_metadata |>
+  mutate(
+    age_at_index = as.numeric(age_at_index),
+    age_at_diagnosis = as.numeric(age_at_diagnosis),
+    days_to_birth = as.numeric(days_to_birth),
+    days_to_death = as.numeric(days_to_death),
+    days_to_diagnosis = as.numeric(days_to_diagnosis),
+    days_to_last_follow_up = as.numeric(days_to_last_follow_up),
+    year_of_birth = as.numeric(year_of_birth),
+    year_of_death = as.numeric(year_of_death),
+    year_of_diagnosis = as.numeric(year_of_diagnosis)
+         )
+```
+
+## Tidy mRNA data
+
+```{r}
+mRNA_data <- as.data.frame(assay(mRNA_all))
+```
+
+## Tidy mRNA metadataset
+
+```{r}
+mRNA_metadata <- as.data.frame(colData(mRNA_all))
+```
+
+## Save clean data files
+
+```{r}
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
+saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
+```
+
+---
+title: "TCGA_describe"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+library(patchwork)
+```
+
+## Fetch datasets
+
+```{r}
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDS"))
+```
+
+## Experiment description
+
+#### Number og Cancer vs. Normal Samples
+
+```{r}
+my_colors <- c("Normal" = "cyan3", "Tumor" = "cyan4", "normal" = "cyan3", "cancer" = "cyan4")
+
+plot1 <- ggplot(miRNA_metadata, aes(x = Status, fill = Status)) +
+  geom_bar() +
+  labs(x = "", y = "Frequency", title = "miRNA") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  guides(fill = FALSE) +
+  scale_fill_manual(values = my_colors) +
+  coord_cartesian(ylim = c(0, 75)) +
+  facet_wrap(~ "Diagnosis", ncol = 2, scales = "free_x")
+
+plot2 <- ggplot(mRNA_metadata, aes(x = Status, fill = Status)) +
+  geom_bar() +
+  labs(x = "", y = "", title = "mRNA") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  scale_fill_manual(values = my_colors) +
+  coord_cartesian(ylim = c(0, 75)) +
+  facet_wrap(~ "Diagnosis", ncol = 2, scales = "free_x")
+
+cancer_vs_normal <- plot1 + plot2 + plot_layout(ncol = 2) +
+  plot_annotation(title = "Frequency of Cases by Category", theme = theme(plot.title = element_text(hjust = 0.5)))
+
+cancer_vs_normal
+
+```
+
+#### Gender distribution
+
+```{r}
+# Plot for miRNA_metadata with adjusted fill colors and y-axis limit
+plot1 <- ggplot(miRNA_metadata, aes(x = gender, y = age_at_index, fill = gender)) + geom_violin() +
+  labs(x = "", y = "Age", title = "miRNA") +
+  guides(fill = FALSE) +
+  facet_wrap(~ "Gender", ncol = 2, scales = "free_x") +
+  geom_boxplot(width=0.1)
+
+# Plot for mRNA_metadata with adjusted fill colors and y-axis limit
+plot2 <- ggplot(mRNA_metadata, aes(x = gender, y = age_at_index, fill = gender)) + geom_violin() +
+  labs(x = "", y = "", title = "mRNA") +
+  facet_wrap(~ "Gender", ncol = 2, scales = "free_x") +
+  geom_boxplot(width=0.1)
+
+# Combine plots using patchwork and add a main title
+gender_distribution <- plot1 + plot2 + plot_layout(ncol = 2) +
+  plot_annotation(title = "Distribution of Age by Gender", theme = theme(plot.title = element_text(hjust = 0.5)))
+
+gender_distribution
+```
+
+#### Cancer stages
+
+```{r}
+cancer_stage <- vctrs::vec_c(miRNA_metadata$ajcc_pathologic_stage, mRNA_metadata$ajcc_pathologic_stage)
+cancer_stage_df <- data.frame(stage = unlist(cancer_stage))
+
+cancer_stages <- ggplot(cancer_stage_df, aes(x = stage, fill = stage)) +
+  geom_bar() +
+  labs(x = "AJCC Pathologic Stage", y = "Frequency", title = "Frequency of AJCC Pathologic Stages by Status") +
+  theme(axis.text.x = element_blank())
+
+cancer_stages
+```
+
+## Save plots
+
+```{r}
+ggsave(file.path("../Doc/images/", "cancer_vs_normal.png"), cancer_vs_normal, width = 10, height = 6, units = "in")
+ggsave(file.path("../Doc/images/", "gender_distribution.png"), gender_distribution, width = 10, height = 6, units = "in")
+ggsave(file.path("../Doc/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
+```
+
+## Clean environment
+
+```{r}
+rm(list = ls())
+```
+
+# Data Analysis
+
+## GSE
+
+## Loading files
 
 ```{r}
 
@@ -89,8 +361,6 @@ mirna_exp <- readRDS("GSE_data/gse_all_data.RDs")
 
 
 ```
-
-## GSE analysis
 
 At first only necessary rows with gene_id and gse_results were selected. Then log2 transformation was done, with omitting negative values and 0's. Also box-plot is generated to see, whether data looks normalized or not
 
