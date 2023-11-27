@@ -32,10 +32,6 @@ format:
 
 -   Data was already standardized
 
-## Data description - GSE
-
-Hi
-
 ## Data analysis - GSE
 
 <font size="6">
@@ -171,15 +167,20 @@ miRNA_aug
 
 ## Results (All)
 
--   Results Integration and Volcano Plotting:
-    -   Results of the analysis were added to the dataset.
-    -   Additional columns were created for volcano plotting:
-        -   'diffexpressed' with values: NO, UP, and DOWN.
-        -   'label' with GENE_ID's of overexpressed genes.
+<font size="6">
 
-```{r}
+-   Volcano Plot & Heatmap:
+    -   'diffexpressed' with values: NO, UP, and DOWN.
+    -   'label' with GENE_ID's of overexpressed genes.'
 
-```
+</font>
+
+| TCGA mRNA                         | TCGA miRNA                         | GSE miRNA                         |
+|-----------------------------------|------------------------------------|-----------------------------------|
+| ![](images/mrna_vol.png)          | ![](images/mirna_vol.png)          | ![](images/gse_vol_plot.png)      |
+| ![](images/TCGA_mRNA_heatmap.png) | ![](images/TCGA_miRNA_heatmap.png) | ![](images/GSE_miRNA_heatmap.png) |
+
+## Results (All)
 
 ## Conclusions
 
