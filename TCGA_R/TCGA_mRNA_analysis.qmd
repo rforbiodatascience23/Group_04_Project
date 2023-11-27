@@ -7,7 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey"
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
 ```
 
@@ -41,39 +41,37 @@ top_genes <- top_genes_stat_subset$genes
 Uniting Stages in one group to facet the plots based on them later on.
 
 ```{r}
-mRNA_metadata <- mRNA_metadata |>
-  mutate(Stage = case_when(
-    ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
-    ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
-    ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
-    ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
-    ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
-    ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
-  )) |>
-  select(-ajcc_pathologic_stage) |>
-  tibble()
+mRNA_metadata <- mRNA_metadata |> 
+  tibble() |>
+  dplyr::rename(TCGA_ID = "barcode") 
 ```
+
+-   It can be concluded from the graph that the expression is higher in the normal tissues.
 
 ```{r}
 mRNA_metadata |> 
-  tibble() |>
-  rename(TCGA_ID = "sample") |>
-  select(TCGA_ID, Stage) |> 
+  select(TCGA_ID, gender) |> 
   right_join(mRNA_log_long, by = 'TCGA_ID') |>
-  ggplot(aes(x = Stage,
+  mutate(tissue_type = str_sub(TCGA_ID, 14, 14)) |>
+  mutate(
+    Status = case_when(tissue_type == 0 ~ "cancer",
+                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
+                     .default = "other")) |>
+  select(-tissue_type) |>
+  ggplot(aes(x = gender,
          y = log_reads,
          col = Status)) +
   geom_boxplot() +
   scale_color_manual(values = c("cancer" = "#f47c6c", 
                                 "normal" = "#13b3ba")) + 
-  labs(title = "Boxplot comparison of total miRNA expression between four cancer stages", color = "Tissue Type",
-       x = "Cancer stage",
+  labs(title = "Boxplot comparison of total miRNA expression between genders", color = "Tissue Type",
+       x = "Gender",
        y = "Log2 expression")
 ```
 
 ## General expression comparison between cancer and normal tissues
 
--   From the graph below, it can be seen that, in general, mRNAs expression is higher in cancer tissues.
+-   From the graph below, it can be seen that, in general, mRNAs expression is higher in cancer tissues. However, there is not enough data for the normal tissues, that is seen from a little number of plotted points.
 
 ```{r}
 mRNA_log_long |>
