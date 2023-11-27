@@ -57,7 +57,7 @@ design <- data.frame(
 design <- as.matrix(design)
 ```
 
-next we will cut off genes that are not expressed in more 1/3 of our samples
+Adfterwards we will cut off genes that are not expressed in more 1/3 of our samples
 
 ```{r}
 cutoff <- median(exp_log)
@@ -70,7 +70,7 @@ diff_expressed_genes <- exp_log[keep, ]
 
 ```
 
-Next step is to fit linear model and to make 2 subgroups - Tumor and Normal, and perform *empirical Bayes'* step to get statistics and p-values.\
+Then we have to fit linear model and to make 2 subgroups - Tumor and Normal, and perform *empirical Bayes'* step to get statistics and p-values.\
 \
 
 ```{r}
@@ -110,7 +110,7 @@ full_results <- topTable(fit2, number=Inf)
 
 ```
 
-Results of our analysis were added to the data set and volcano plot was generated to show Diferentially Expressed genes
+Results of our analysis are added to the data set and volcano plot was generated to show Diferentially Expressed genes
 
 ```{r}
 full_results <- full_results |>
@@ -156,7 +156,7 @@ gse_vol <- ggplot(data = gse_results, aes(x = logFC,
 print(gse_vol)
 ```
 
-As the last step a file of only highly expressed genes was generated for merging purposes, and to create top 20 over expressed genes as an expression file
+As the last step a file of only highly expressed genes is generated for merging purposes, and to create top 20 over expressed genes as an expression file
 
 ```{r}
 high_expressed_genes <- gse_results |>
