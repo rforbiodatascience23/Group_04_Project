@@ -821,19 +821,6 @@ ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_
 ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_vol.png")), plot = mrna_vol, width = 14, height = 8, unit = "in")
 ```
 
----
-title: "TCGA_topgenes_heatmap"
-format: html
-editor: visual
----
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
-```
-
 ## Load datasets
 
 ```{r}
