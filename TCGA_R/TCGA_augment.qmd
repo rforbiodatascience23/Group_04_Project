@@ -7,7 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard/"
+own_path <- "/Users/kseniakirdey"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
@@ -103,38 +103,18 @@ mRNA_log <- as.data.frame(mRNA_log) |>
 
 ## edgeR
 
-#### Function to create normalized expression datasets.
-
-```{r}
-process_data <- function(data) {
-  # Extract IDs and expression data
-  ids <- data[, 1]  # IDs are in the first column
-  expression_data <- data[, -1]
-
-  # Imputation to estimate missing values based on the mean of available data
-  expression_data_imputed <- apply(expression_data, 2, 
-                                   function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-                                   )
-
-  # Create an edgeR object
-  y <- DGEList(counts = expression_data_imputed, genes = ids)
-
-  # Normalization step
-  y <- calcNormFactors(y)
-
-  # Return the result
-  return(y)
-}
-```
+#### Creating normalized dataset
 
 ```{r}
 mRNA_y <- process_data(mRNA_log)
 miRNA_y <- process_data(miRNA_log)
 ```
 
-#### Function to run edgeR differential expression analysis.
+#### Function to run edgeR differential expression analysis
 
-In the next code chunk, a function for an edgeR processing is created. Firstly, the design matrix is shaped, that will compare groups "Cancer" and "Normal" that are indicated in a column "Status" in metadata dataframes.
+In the next code chunk, a function for an edgeR processing is used. The function could be found in the "project_functions.R" filr.
+
+Firstly, the design matrix is shaped, that will compare groups "Cancer" and "Normal" that are indicated in a column "Status" in metadata dataframes.
 
 Secondly, the following actions are performed:
 
@@ -146,35 +126,7 @@ Secondly, the following actions are performed:
 
 4\) **`topTags`** is used to **extract the top genes**, based on statistical significance from the results of a differential expression analysis. It takes the output of `glmQLFTest` and returns a list of top-ranked genes, based on the calculated values that indicate the significance.
 
-```{r}
-run_edgeR_analysis <- function(data_y,
-                               design_formula,
-                               metadata, 
-                               feature_data) {
-  # Create model matrix
-  # design formula is the same in this case, but in case of other names, it can be changed
-  design <- model.matrix(as.formula(design_formula), 
-                         data = metadata)
-  
-  # Set row names
-  rownames(design) <- data_y$samples[, 0]
-  
-  # Estimate dispersion
-  data_y <- estimateDisp(data_y, design)
-  
-  # Fit model
-  fit <- glmQLFit(data_y, design, robust = TRUE)
-  
-  # Likelihood ratio test
-  qlt <- glmQLFTest(fit)
-  
-  # Getting top genes and saving table in the variable. 
-  # The dimension of the original dataset is applied.
-  topgenes <- topTags(qlt, n = dim(feature_data)[[1]])
-  
-  return(topgenes)
-}
-```
+### Saving statistics datasets
 
 Saving the statistics information about the differential expression into `top_genes_stat` and gene names into `top_genes` to filter them in the datasets for the further analysis.
 
@@ -194,23 +146,9 @@ miRNA_top_genes_stat <- miRNA_edgeR$table
 miRNA_top_genes <- miRNA_top_genes_stat$miRNA_ID
 ```
 
-#### Function to pivot the datasets for the further merging with metadata.
+#### Pivoting and filtering the datasets
 
-```{r}
-pivot_and_filter <- function(data, 
-                             id_column, 
-                             top_genes_list) {
-  filtered_data <- data |>
-    filter({{ id_column }} %in% top_genes_list) |>
-    pivot_longer(
-      cols = -{{ id_column }},
-      names_to = "TCGA_ID",
-      values_to = "log_reads"
-    )
-  
-  return(filtered_data)
-}
-```
+From the existing log datasets, only top deferentially expressed genes, identified by edgeR, are chosen.
 
 ```{r}
 mRNA_log_long <- pivot_and_filter(mRNA_log, genes, mRNA_top_genes)
