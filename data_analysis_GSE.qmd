@@ -134,10 +134,14 @@ gse_vol <- ggplot(data = gse_results, aes(x = logFC,
                                y = -log10(P.Value), 
                                col = diffexpressed, 
                                label = label)) + 
-  geom_point() + 
   theme_minimal() +
-   geom_vline(xintercept = c(-1,1), linetype = "dashed") +
-  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  geom_point(alpha = 0.5) +
+  scale_color_manual(values = c("UP" = "red", 
+                                "DOWN" = "blue", 
+                                "NO" = "gray"),
+                     name = "Type of genes regulation") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
   geom_text_repel(data = subset(gse_results, 
                                 diffexpressed != "NO"), 
                   aes(label = label), 
@@ -149,7 +153,7 @@ gse_vol <- ggplot(data = gse_results, aes(x = logFC,
 
 
 
-
+print(gse_vol)
 ```
 
 As the last step a file of only highly expressed genes was generated for merging purposes, and to create top 20 over expressed genes as an expression file
@@ -184,7 +188,7 @@ saveRDS(high_expressed_genes, file = file.path(path, "gse_expressed_genes.rds"))
 
 saveRDS(top_20_genes, file = file.path(path, "gse_top_20.rds"))
 
-ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height = 8, units = "in")
+ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height = 8.4, units = "in")
 
 ```
 
