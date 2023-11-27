@@ -50,7 +50,7 @@ mRNA_metadata <- mRNA_metadata |>
 -   It can be concluded from the graph that the expression is higher in the normal tissues.
 
 ```{r}
-mRNA_metadata |> 
+mRNA_box <- mRNA_metadata |> 
   set_tissue_status() |>
    right_join(mRNA_log_long, by = 'TCGA_ID') |>
   ggplot(aes(x = gender,
@@ -66,10 +66,10 @@ mRNA_metadata |>
 
 ## General expression comparison between cancer and normal tissues
 
--   From the graph below, it can be seen that, in general, mRNAs expression is higher in cancer tissues. However, there is not enough data for the normal tissues, that is seen from a little number of plotted points.
+-   From the graph below, it can be seen that, in general, mRNAs expression is higher in normal tissues for the genes where there is enough datapoints. However, there is not enough data for the normal tissues, that is seen from a little number of plotted points.
 
 ```{r}
-mRNA_log_long |>
+mRNA_expression <- mRNA_log_long |>
   set_tissue_status() |>
   filter(genes %in% top_genes) |>
   ggplot(aes(x = genes,
@@ -115,7 +115,7 @@ top_genes_stat <- top_genes_stat |>
 ```
 
 ```{r}
-top_genes_stat |> 
+mrna_vol <- top_genes_stat |> 
   ggplot(aes(x = logFC,
              y = -log10(FDR),
              col = regulation)) +
@@ -133,6 +133,14 @@ top_genes_stat |>
   geom_text_repel(data = head(top_genes_stat_subset, 15),
     aes(x = logFC, y = -log10(FDR), label = genes),
     color = "black")
+```
+
+```{r}
+ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mrna_boxplot.png")), plot = mRNA_box, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mrna_expression.png")), plot = mRNA_expression, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mrna_vol.png")), plot = mrna_vol, width = 14, height = 8, unit = "in")
 ```
 
 ## Clean environment
