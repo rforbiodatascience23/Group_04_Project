@@ -122,3 +122,17 @@ pivot_and_filter <- function(data,
   
   return(filtered_data)
 }
+
+# Function to add tissue status (normal, cancer)
+
+set_tissue_status <- function(data){
+  data <- data |>
+    mutate(tissue_type = str_sub(TCGA_ID, 14, 14)) |>
+    mutate(
+      Status = case_when(tissue_type == 0 ~ "cancer",
+                         (tissue_type == 1 | tissue_type == 2) ~ "normal",
+                         .default = "other")) |>
+    select(-tissue_type)
+  return(data)
+}
+
