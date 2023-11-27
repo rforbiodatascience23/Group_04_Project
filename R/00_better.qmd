@@ -8,46 +8,32 @@ editor: visual
 
 {{< include GSE_load.qmd >}}
 
-
 {{< include TCGA_load.qmd>}}
-
 
 ## Data cleaning
 
-
 {{< include GSE_clean.qmd>}}
-
 
 {{< include TCGA_clean.qmd>}}
 
-
 ## Data description
-
 
 {{< include TCGA_describe.qmd>}}
 
-
 ## Data augument
-
 
 {{< include TCGA_augument.qmd>}}
 
-
 ## Data analysis
-
 
 {{< include GSE_analysis.qmd>}}
 
-
 {{< include TCGA_mRNA_analysis.qmd>}}
-
 
 {{< include TCGA_miRNA_analysis.qmd>}}
 
 ## Data visualization
 
-
 {{< include TCGA_topgenes_heatmap.qmd>}}
-
 
 {{< include Combined_heatmap.qmd>}}
