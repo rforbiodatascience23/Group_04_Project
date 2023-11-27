@@ -25,6 +25,11 @@ gse_plot1 <- patient_stage |>
 ```
 
 ```{r}
+
+ggplot(patient_stage, aes(x = cancer_stage, fill = cancer_stage)) +
+  geom_bar() +
+  labs(x = "The stages of cancer ", y = "Frequency", title = "Frequency of the different states of cancer") +
+  theme(axis.text.x = element_blank())
 ```
 
 ## Boxplot
