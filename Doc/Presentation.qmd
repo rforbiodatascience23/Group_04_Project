@@ -49,8 +49,7 @@ Hi
 -   Linear Model Fitting and Contrasts:
     -   A linear model was fitted.
     -   Contrasts were created between the two groups (Tumor and Normal).
-
-Empirical Bayes' step was performed to obtain statistics and p-values.
+    -   Empirical Bayes' step was performed to obtain statistics and p-values.
 
 ## 
 
