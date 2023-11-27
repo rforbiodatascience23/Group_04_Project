@@ -14,7 +14,7 @@ format:
 
 ## Introduction
 
-![](images/Introduction - Article.png)
+![](images/Introduction%20-%20Article.png){fig-align="center"}
 
 -   CRC has the 3^rd^ highest mortality rate
 
@@ -24,14 +24,18 @@ format:
 
 -   miRNA and mRNA can serve as biomarkers - these we want to find!
 
-## GEO data
+## Data retrieval - GSE
 
 -   Using the library GEOquery, the data was loaded -\> no need to download any files
 
--   Both primary data and meta data was loaded and data was already standardized, though we still cleaned the data further
+-   Both primary data and meta data was loaded
+
+-   Data was already standardized
+
+## Data description - GSE
 
 |                                         |                                                 |
-|---------------------------------------|---------------------------------|
+|-----------------------------------------|-------------------------------------------------|
 | **miRNA from the GEO data**             | **Frequency of the different states of cancer** |
 | ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png)                |
 
@@ -170,7 +174,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 </font>
 
 | TCGA mRNA                | TCGA miRNA                | GSE miRNA                    |
-|------------------------|------------------------|------------------------|
+|--------------------------|---------------------------|------------------------------|
 | ![](images/mrna_vol.png) | ![](images/mirna_vol.png) | ![](images/gse_vol_plot.png) |
 
 ## Results
@@ -182,7 +186,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 </font>
 
 | TCGA mRNA                         | TCGA miRNA                         | GSE miRNA                         |
-|------------------------|-------------------------|------------------------|
+|-----------------------------------|------------------------------------|-----------------------------------|
 | ![](images/TCGA_mRNA_heatmap.png) | ![](images/TCGA_miRNA_heatmap.png) | ![](images/GSE_miRNA_heatmap.png) |
 
 ## Conclusions
