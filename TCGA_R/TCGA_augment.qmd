@@ -7,8 +7,9 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/"
+
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
@@ -26,12 +27,12 @@ library(stringr)
 
 ```{r}
 #miRNA
-miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
-miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_data_clean.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_metadata_clean.RDS"))
 
 #mRNA
-mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
-mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_data_clean.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_metadata_clean.RDS"))
 ```
 
 ## miRNA data pre-processing
@@ -203,15 +204,15 @@ rownames(mRNA_log) <- row_names
 ## Saving datasets for analysing
 
 ```{r}
-saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDs"))
-saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDs"))
-saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDs"))
-saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_aug.RDs"))
+saveRDS(miRNA_log, file = paste0(own_path, "/group_04_project/TCGA_Data/miRNA_expression.RDs"))
+saveRDS(miRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_Data/miRNA_aug.RDs"))
+saveRDS(miRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_Data/miRNA_top_genes_stat.RDs"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_Data/miRNA_metadata_aug.RDs"))
 
-saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
-saveRDS(mRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_aug.RDS"))
-saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_top_genes_stat.RDs"))
-saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_aug.RDs"))
+saveRDS(mRNA_log, file = paste0(own_path, "/group_04_project/TCGA_Data/mRNA_expression.RDS"))
+saveRDS(mRNA_log_long, file = paste0(own_path, "/group_04_project/TCGA_Data/mRNA_aug.RDS"))
+saveRDS(mRNA_top_genes_stat, file = paste0(own_path, "/group_04_project/TCGA_Data/mRNA_top_genes_stat.RDs"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_Data/mRNA_metadata_aug.RDs"))
 ```
 
 ## Clean environment
