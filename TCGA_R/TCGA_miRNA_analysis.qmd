@@ -150,11 +150,11 @@ mirna_vol <- top_genes_stat |>
 ## Saving the plot
 
 ```{r}
-ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mirna_boxplot.png")), plot = miRNA_box, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mirna_boxplot.png")), plot = miRNA_box, width = 14, height = 8, unit = "in")
 
-ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mirna_expression.png")), plot = miRNA_expression, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mirna_expression.png")), plot = miRNA_expression, width = 14, height = 8, unit = "in")
 
-ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mirna_vol.png")), plot = mirna_vol, width = 14, height = 8, unit = "in")
+ggsave(file.path(file = paste0(own_path, "/group_04_project/Doc/images/mirna_vol.png")), plot = mirna_vol, width = 14, height = 8, unit = "in")
 ```
 
 ## Clean environment
