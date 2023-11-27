@@ -35,7 +35,7 @@ format:
 ## Data description - GSE
 
 |                                         |                                  |
-|-----------------------------------------|----------------------------------|
+|---------------------------------------|---------------------------------|
 | ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png) |
 
 -   Majority of data comes from patients with earlier stage cancer
@@ -187,7 +187,7 @@ miRNA_aug
 </font>
 
 | TCGA mRNA                   | TCGA miRNA                   | GSE miRNA                    |
-|-----------------------------|------------------------------|------------------------------|
+|------------------------|------------------------|------------------------|
 | ![](images/mrna_vol-01.png) | ![](images/mirna_vol-01.png) | ![](images/gse_vol_plot.png) |
 
 ## Results (All)
@@ -198,9 +198,9 @@ miRNA_aug
 
 </font>
 
-| TCGA mRNA                         | TCGA miRNA                         | GSE miRNA                         |
-|-----------------------------------|------------------------------------|-----------------------------------|
-| ![](images/TCGA_mRNA_heatmap.png) | ![](images/TCGA_miRNA_heatmap.png) | ![](images/GSE_miRNA_heatmap.png) |
+| TCGA mRNA                            | TCGA miRNA                            | GSE miRNA                            |
+|------------------------|-------------------------|------------------------|
+| ![](images/TCGA_mRNA_heatmap-01.png) | ![](images/TCGA_miRNA_heatmap-01.png) | ![](images/GSE_miRNA_heatmap-01.png) |
 
 ## Conclusions
 

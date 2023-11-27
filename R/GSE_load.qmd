@@ -5,7 +5,7 @@ editor: visual
 ---
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/group_04_project/"
+own_path <- "/Users/mathildebechgaard/"
 knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
 ```
 
@@ -48,14 +48,14 @@ metadata <- gse_data@phenoData@data
 ## Saving datasets
 
 ```{r}
-saveRDS(gse_data_frame, file = paste0(path, "/data/gse_data_load.RDs"))
+saveRDS(gse_data_frame, file = paste0(own_path, "group_04_project/data/gse_data_load.RDs"))
 
 exp_data <- as.data.frame(exp_data)
-saveRDS(exp_data, file = paste0(path, "/data/gse_expressed_data.RDs"))
+saveRDS(exp_data, file = paste0(own_path, "group_04_project/data/gse_expressed_data.RDs"))
 
-saveRDS(gpl, file = paste0(path, "/data/gse_chosen_meta_data.RDs"))
+saveRDS(gpl, file = paste0(own_path, "group_04_project/data/gse_chosen_meta_data.RDs"))
 
-saveRDS(mirna_exp, file = paste0(path, "/data/gse_all_data.RDs"))
+saveRDS(mirna_exp, file = paste0(own_path, "group_04_project/data/gse_all_data.RDs"))
 
-saveRDS(metadata, file = paste0(path, "/data/gse_all_meta_data.RDs"))
+saveRDS(metadata, file = paste0(own_path, "group_04_project/data/gse_all_meta_data.RDs"))
 ```

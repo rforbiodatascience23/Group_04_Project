@@ -5,7 +5,7 @@ editor: visual
 ---
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/group_04_project/"
+own_path <- "/Users/mathildebechgaard/"
 knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
 ```
 
@@ -18,7 +18,7 @@ library(tidyverse)
 ## Creating new data frame
 
 ```{r}
-patient_stage <- readRDS(paste0(own_path, ("data/gse_all_meta_data.RDs"))) |> 
+patient_stage <- readRDS(paste0(own_path, ("group_04_project/data/gse_all_meta_data.RDs"))) |> 
   select(source_name_ch1, characteristics_ch1.2, characteristics_ch1.3, characteristics_ch1.4) |> 
   mutate(group = if_else(characteristics_ch1.4 == "tnm stages: normal", "control", "cancer")) |> 
   mutate(characteristics_ch1.3 = as.numeric(str_replace(characteristics_ch1.3, "age: ", ""))) |> 
@@ -33,5 +33,5 @@ patient_stage <- readRDS(paste0(own_path, ("data/gse_all_meta_data.RDs"))) |>
 
 ```{r}
 patient_stage <- as.data.frame(patient_stage)
-saveRDS(patient_stage, file = paste0(own_path, "data/gse_clean.RDs"))
+saveRDS(patient_stage, file = paste0(own_path, "group_04_project/data/gse_clean.RDs"))
 ```
