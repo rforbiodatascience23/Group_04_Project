@@ -16,9 +16,14 @@ library(tidyverse)
 library(stringr)
 library(SummarizedExperiment)
 library(patchwork)
+library(reshape2)
 ```
 
-# Data loading - GSE
+# Data retrieval:
+
+See the README.md file.
+
+## GSE
 
 ```{r}
 data <- getGEO(GEO = "GSE39833")[[1]]
@@ -28,7 +33,7 @@ exp_data <- exprs(data) #extracting expression values (Limma)
 gpl <- Table(getGEO("GPL14767"))
 ```
 
-## Tidying data
+### Tidying data
 
 ```{r}
 data_frame <- as.data.frame(exp_data) |> 
@@ -46,7 +51,7 @@ metadata <- data@phenoData@data
 
 ```
 
-## Saving datasets
+### Saving datasets
 
 ```{r}
 path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
@@ -65,21 +70,9 @@ saveRDS(metadata, file = paste0(path, "/data/gse_all_meta_data.RDs"))
 
 ```
 
-# Data Loading - TCGA
-
-## Data retrieval:
+## TCGA
 
 See the README.md file.
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/kseniakirdey"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/_raw/"))
-source(paste0(own_path, "/group_04_project/project_functions.R"))
-```
-
-## Loading libraries
 
 Obtaining the IDs of the patients for whom the RNA expression was registered:
 
@@ -98,7 +91,7 @@ RNA_samples <- RNA_samples |>
   arrange(type)
 ```
 
-## Obtaining the IDs of interest
+### Obtaining the IDs of interest
 
 ```{r}
 id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 50)
@@ -152,13 +145,6 @@ print(citation("TCGAbiolinks"), bibtex=TRUE)
 saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_load.RDS"))
 saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_load.RDS"))
 saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/data/mRNA_all_load.RDS"))
-```
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
 ## Fetch dataset
@@ -232,13 +218,6 @@ saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/data/miRNA_data_c
 saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/data/miRNA_metadata_clean.RDS"))
 saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
 saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
-```
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
 ## Fetch datasets
@@ -324,12 +303,6 @@ ggsave(file.path("../results/images/", "gender_distribution.png"), gender_distri
 ggsave(file.path("../results/images/", "cancer_stages.png"), cancer_stages, width = 10, height = 6, units = "in")
 ```
 
-## Clean environment
-
-```{r}
-rm(list = ls())
-```
-
 # Data Analysis
 
 ## GSE
@@ -388,7 +361,6 @@ diff_expressed_genes <- exp_log[keep, ]
 ```
 
 Then we have to fit linear model and to make 2 subgroups - Tumor and Normal, and perform *empirical Bayes'* step to get statistics and p-values.\
-\
 
 ```{r}
 fit <- lmFit(diff_expressed_genes, design)
@@ -496,9 +468,6 @@ top_20_genes <- high_expressed_genes |>
 
 ```{r}
 
-# Define the path to the directory
-path <- "C:/Users/Konrad/Documents/group_04_project/results"
-
 saveRDS(gse_results, file = file.path(path, "gse_results.rds"))
 
 saveRDS(high_expressed_genes, file = file.path(path, "gse_expressed_genes.rds"))
@@ -509,7 +478,482 @@ ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height =
 
 ```
 
-## Deleting files
+## miRNA
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
+```
+
+## Fetch dataset
+
+```{r}
+miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
+miRNA_meta <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
+```
+
+Subsetting top 15 "log Fold Changed" genes for a better visualisation:
+
+```{r}
+top_genes_stat_subset <- top_genes_stat |>
+  arrange(desc(abs(logFC))) |>
+  head(n = 15)
+
+top_genes <- top_genes_stat_subset$miRNA_ID
+```
+
+Uniting Stages in one group to facet the plots based on them later on.
+
+```{r}
+miRNA_meta <- miRNA_meta |>
+ mutate(Stage = case_when(
+    ajcc_pathologic_stage == "Stage I" | ajcc_pathologic_stage == "Stage IA" ~ "Stage I",
+    ajcc_pathologic_stage == "Stage II" | ajcc_pathologic_stage == "Stage IIA" |
+    ajcc_pathologic_stage == "Stage IIB" ~ "Stage II",
+    ajcc_pathologic_stage == "Stage III" | ajcc_pathologic_stage == "Stage IIIA" |
+    ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
+    ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
+  )) |>
+  select(-ajcc_pathologic_stage) |> 
+  tibble() |>
+  select(-sample_submitter_id) |>
+  dplyr::rename(TCGA_ID = "sample")
+```
+
+## Comparison of the expression between the stages
+
+```{r}
+miRNA_box <- miRNA_meta |> 
+  select(TCGA_ID, Stage) |> 
+  right_join(miRNA_log_long, by = 'TCGA_ID') |>
+  set_tissue_status() |>
+  ggplot(aes(x = Stage,
+         y = log_reads,
+         col = Status)) +
+  geom_boxplot() +
+  scale_color_manual(values = c("cancer" = "#f47c6c", 
+                                "normal" = "#13b3ba")) + 
+  labs(title = "Boxplot comparison of total miRNA expression between four cancer stages", color = "Tissue Type",
+       x = "Cancer stage",
+       y = "Log2 expression") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
+```
+
+## General comparison of the expression between cancer and normal tissues
+
+-   Ideally, the samples should be taken from cancer and normal tissues of the same patients to get a proper overview of the expression difference. In our case, not all the samples had this comparison. Therefore, to make the conclusions based on the plots more precise, one should properly collect the expression data.
+
+-   From the graph below, it can be seen that, in general, miRNAs expression is higher in cancer tissues.
+
+```{r}
+miRNA_expression <- miRNA_log_long |>
+  filter(miRNA_ID %in% top_genes) |>
+  set_tissue_status() |>
+  ggplot(aes(x = miRNA_ID,
+             y = log_reads,
+             col = Status)) +
+  geom_point() +
+  labs(title = "Comparison of expression of 15 top differentially expressed miRNAs \nbetween cancer and normal TCGA samples", color = "Tissue Type",
+       x = "miRNA IDs",
+       y = "Log2 expression") +
+  scale_color_manual(values = c("cancer" = "#f47c6c", 
+                                "normal" = "#13b3ba")) +
+  theme(axis.text.x = element_text(
+    angle = 45,
+    hjust = 1),
+    plot.title = element_text(
+      size = 12, 
+      angle = 0)) +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
+```
+
+## Volcano plot
+
+-   In the following volcano plot, statistically significant values are highlighted in blue (the p-value is flipped, so it becomes more significant with the higher values). Positive LFC indicates higher expression in the cancer group compared to the normal tissues, that is in accordance with the plots above.
+
+```{r}
+# stating the significance based on the adjusted pvalues (FDR corrects for multiple comparisons)
+top_genes_stat <- top_genes_stat |>
+    mutate(
+      significance = case_when(
+        FDR > 0.05 ~ "no",
+        FDR <= 0.05 ~ "yes"
+      )
+    )
+```
+
+```{r}
+top_genes_stat <- top_genes_stat |>
+  mutate(
+    regulation = case_when(
+      logFC > 1 ~ "Upregulated",
+      logFC < -1 ~ "Downregulated",
+      TRUE ~ "Non-significant"
+    )
+  )
+```
+
+```{r}
+mirna_vol <- top_genes_stat |> 
+  ggplot(aes(x = logFC,
+             y = -log10(FDR),
+             col = regulation)) +
+  geom_point(alpha = 0.5) +
+  scale_color_manual(values = c("Upregulated" = "red", 
+                                "Downregulated" = "blue", 
+                                "Non-significant" = "gray"),
+                     name = "Type of genes regulation") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "black") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  labs(x = "Log Fold Change",
+       y = "-log10(FDR)",
+       title = "Top Differentially Expressed miRNAs in TCGA-COAD Samples") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_text_repel(data = top_genes_stat_subset,
+                  aes(label = miRNA_ID),
+                      color = "black") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
+```
+
+## Save plots
+
+```{r}
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mirna_boxplot.png")), plot = miRNA_box, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mirna_expression.png")), plot = miRNA_expression, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mirna_vol.png")), plot = mirna_vol, width = 14, height = 8, unit = "in")
+```
+
+---
+title: "mRNA_analysis"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
+```
+
+## Fetch dataset
+
+```{r}
+mRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_aug.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDS"))
+mRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
+```
+
+Subseting top 25 "log Fold Changed" genes for a better visualisation:
+
+```{r}
+top_genes_stat_subset <- top_genes_stat |>
+  arrange(desc(abs(logFC))) |>
+  head(n = 25)
+
+top_genes <- top_genes_stat_subset$genes
+```
+
+## Stages comparison
+
+Uniting Stages in one group to facet the plots based on them later on.
+
+```{r}
+mRNA_metadata <- mRNA_metadata |> 
+  tibble() |>
+  dplyr::rename(TCGA_ID = "barcode")
+```
+
+-   It can be concluded from the graph that the expression is higher in the normal tissues.
+
+```{r}
+mRNA_box <- mRNA_metadata |> 
+  set_tissue_status() |>
+   right_join(mRNA_log_long, by = 'TCGA_ID') |>
+  ggplot(aes(x = gender,
+         y = log_reads,
+         col = Status)) +
+  geom_boxplot() +
+  scale_color_manual(values = c("cancer" = "#f47c6c", 
+                                "normal" = "#13b3ba")) + 
+  labs(title = "Boxplot comparison of total mRNA expression \nbetween genders", color = "Tissue Type",
+       x = "Gender",
+       y = "Log2 expression") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
+```
+
+## General expression comparison between cancer and normal tissues
+
+-   From the graph below, it can be seen that, in general, mRNAs expression is higher in normal tissues for the genes where there is enough datapoints. However, there is not enough data for the normal tissues, that is seen from a little number of plotted points.
+
+```{r}
+mRNA_expression <- mRNA_log_long |>
+  set_tissue_status() |>
+  filter(genes %in% top_genes) |>
+  ggplot(aes(x = genes,
+             y = log_reads,
+             col = Status)) +
+  geom_point() +
+  labs(title = "Comparison of expression of 25 top differentially expressed mRNAs between cancer and normal TCGA samples", color = "Tissue Type",
+       x = "mRNA IDs",
+       y = "Log2 expression") +
+  theme(axis.text.x = element_text(
+    angle = 45,
+    hjust = 1),
+    plot.title = element_text(
+      size = 12, 
+      angle = 0)) +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
+```
+
+## Volcano plot
+
+-   In the following volcano plot, statistically significant values are highlighted in blue (the p-value is flipped, so it becomes more significant with the higher values). Positive LFC indicates higher expression in the cancer group compared to the normal tissues, that is in accordance with the plot above.
+
+```{r}
+# stating the significance based on the adjusted pvalues (FDR corrects for multiple comparisons)
+top_genes_stat <- top_genes_stat |>
+    mutate(
+      significance = case_when(
+        FDR > 0.05 ~ "no",
+        FDR <= 0.05 ~ "yes"
+      )
+    )
+```
+
+```{r}
+# defining the over-/underexpression character of genes
+top_genes_stat <- top_genes_stat |>
+  mutate(
+    regulation = case_when(
+      logFC > 1 ~ "Upregulated",
+      logFC < -1 ~ "Downregulated",
+      TRUE ~ "Non-significant"
+    )
+  )
+```
+
+```{r}
+mrna_vol <- top_genes_stat |> 
+  ggplot(aes(x = logFC,
+             y = -log10(FDR),
+             col = regulation)) +
+  geom_point() +
+  scale_color_manual(values = c("Upregulated" = "red", 
+                                "Downregulated" = "blue", 
+                                "Non-significant" = "gray"),
+                     name = "Type of genes regulation") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") +
+  labs(x = "Log Fold Change",
+       y = "-log10(FDR)",
+       title = "Top Differentially Expressed mRNAs in TCGA-COAD Samples") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_text_repel(data = head(top_genes_stat_subset, 15),
+    aes(x = logFC, y = -log10(FDR), label = genes),
+    color = "black") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
+```
+
+## Save plots
+
+```{r}
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_boxplot.png")), plot = mRNA_box, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_expression.png")), plot = mRNA_expression, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/results/images/mrna_vol.png")), plot = mrna_vol, width = 14, height = 8, unit = "in")
+```
+
+---
+title: "TCGA_topgenes_heatmap"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Load datasets
+
+```{r}
+top_genes_stat_miRNA <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_data_clean.RDS"))
+
+top_genes_stat_mRNA <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_top_genes_stat.RDS"))
+mRNA_data <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_data_clean.RDS"))
+```
+
+```{r}
+mRNA_data <- mRNA_data |>
+  rownames_to_column(var = "genes") |>
+  tibble()
+```
+
+Function to choose top `n_genes` from the datasets.
+
+```{r}
+top_genes_choosing <- function(stat_data, 
+                             id_column, 
+                             n_genes,
+                             expr_data) {
+  top <- stat_data |>
+  mutate(diff_col = case_when(
+    logFC > 0.6 & FDR < 0.05 ~ "UP",
+    logFC < -0.6 & FDR < 0.05 ~ "DOWN",
+    TRUE ~ "NO"
+  )) |> 
+  arrange(desc(abs(logFC))) |> 
+  select({{ id_column }}) |>
+  head(n_genes)
+  
+  top <- top |> pull({{ id_column }})
+  
+  top_expression <- expr_data |>
+  filter({{ id_column }} %in% top) |>
+  head(n_genes)
+  
+  return(top_expression)
+}
+```
+
+```{r}
+miRNA_top_20_expression <- top_genes_choosing(top_genes_stat_miRNA, 
+                   id_column = miRNA_ID, 
+                   n_genes = 20, 
+                   expr_data = miRNA_data)
+```
+
+```{r}
+mRNA_top_20_expression <- top_genes_choosing(top_genes_stat_mRNA, 
+                   id_column = genes, 
+                   n_genes = 20, 
+                   expr_data = mRNA_data)
+```
+
+```{r}
+saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/mRNA_top_expression.RDs"))
+saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/miRNA_top_expression.RDs"))
+```
+
+---
+title: "TCGA_Heatmap"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/mathildebechgaard"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+```
+
+## Fetch dataset
+
+```{r}
+gse_miRNA <- readRDS(paste0(own_path, "/group_04_project/results/gse_top_20.rds"))
+TCGA_miRNA <- readRDS(paste0(own_path, "/group_04_project/results/miRNA_top_expression.rds"))
+TCGA_mRNA <- readRDS(paste0(own_path, "/group_04_project/results/mRNA_top_expression.rds"))
+```
+
+## Transform data for visualization
+
+```{r}
+GSE_miRNA <- gse_miRNA |>
+  mutate(across(where(is.numeric), ~log2(. + 1)))
+
+TCGA_miRNA <- TCGA_miRNA |>
+  mutate(across(where(is.numeric), ~log2(. + 1)))
+rownames(TCGA_miRNA) <- TCGA_miRNA[, 1]
+TCGA_miRNA <- TCGA_miRNA[, -1]
+TCGA_miRNA <- TCGA_miRNA[, colSums(is.na(TCGA_miRNA)) != nrow(TCGA_miRNA), drop = FALSE]
+
+TCGA_mRNA <- as.data.frame(TCGA_mRNA) |>
+  mutate(across(where(is.numeric), ~log2(. + 1)))
+rownames(TCGA_mRNA) <- TCGA_mRNA[, 1]
+TCGA_mRNA <- TCGA_mRNA[, -1]
+```
+
+## Transpose dataframes to fit geom_tile
+
+```{r}
+GSE_miRNA <- t(GSE_miRNA)
+TCGA_miRNA <- t(TCGA_miRNA)
+TCGA_mRNA <- t(TCGA_mRNA)
+```
+
+## miRNA Heatmap
+
+```{r}
+GSE_miRNA_heatmap <- ggplot(data = melt(GSE_miRNA), aes(x = Var2, y = Var1, fill = value)) +
+  geom_tile() +
+  labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_blank())
+GSE_miRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
+```
+
+## miRNA Heatmap
+
+```{r}
+TCGA_miRNA_heatmap <- ggplot(data = melt(TCGA_miRNA), aes(x = Var2, y = Var1, fill = value)) +
+  geom_tile() +
+  labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_blank())
+TCGA_miRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
+```
+
+## mRNA Heatmap
+
+```{r}
+TCGA_mRNA_heatmap <- ggplot(data = melt(TCGA_mRNA), aes(x = Var2, y = Var1, fill = value)) +
+  geom_tile() +
+  labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_blank())
+TCGA_mRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
+```
+
+## Save plots
+
+```{r}
+ggsave(file.path("../results/images/", "GSE_miRNA_heatmap.png"), GSE_miRNA_heatmap, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "TCGA_miRNA_heatmap.png"), TCGA_miRNA_heatmap, width = 10, height = 6, units = "in")
+ggsave(file.path("../results/images/", "TCGA_mRNA_heatmap.png"), TCGA_mRNA_heatmap, width = 10, height = 6, units = "in")
+```
+
+## Clean the environment
 
 ```{r}
 rm(list = ls())
