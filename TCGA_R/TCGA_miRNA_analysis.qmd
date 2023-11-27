@@ -58,7 +58,7 @@ miRNA_meta <- miRNA_meta |>
 ## Comparison of the expression between the stages
 
 ```{r}
-miRNA_meta |> 
+miRNA_box <- miRNA_meta |> 
   select(TCGA_ID, Stage) |> 
   right_join(miRNA_log_long, by = 'TCGA_ID') |>
   set_tissue_status() |>
@@ -80,7 +80,7 @@ miRNA_meta |>
 -   From the graph below, it can be seen that, in general, miRNAs expression is higher in cancer tissues.
 
 ```{r}
-miRNA_log_long |>
+miRNA_expression <- miRNA_log_long |>
   filter(miRNA_ID %in% top_genes) |>
   set_tissue_status() |>
   ggplot(aes(x = miRNA_ID,
@@ -127,7 +127,7 @@ top_genes_stat <- top_genes_stat |>
 ```
 
 ```{r}
-top_genes_stat |> 
+mirna_vol <- top_genes_stat |> 
   ggplot(aes(x = logFC,
              y = -log10(FDR),
              col = regulation)) +
@@ -145,6 +145,16 @@ top_genes_stat |>
   geom_text_repel(data = top_genes_stat_subset,
                   aes(label = miRNA_ID),
                       color = "black")
+```
+
+## Saving the plot
+
+```{r}
+ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mirna_boxplot.png")), plot = miRNA_box, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mirna_expression.png")), plot = miRNA_expression, width = 14, height = 8, unit = "in")
+
+ggsave(file.path(file = paste0(own_path, "/group_04_project/TCGA_data/mirna_vol.png")), plot = mirna_vol, width = 14, height = 8, unit = "in")
 ```
 
 ## Clean environment
