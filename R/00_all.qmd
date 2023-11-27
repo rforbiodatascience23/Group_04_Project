@@ -19,9 +19,9 @@ library(stringr)
 # Data loading - GSE
 
 ```{r}
-gse_data <- getGEO(GEO = "GSE39833")[[1]]
+data <- getGEO(GEO = "GSE39833")[[1]]
 
-exp_data <- exprs(gse_data) #extracting expression values (Limma)
+exp_data <- exprs(data) #extracting expression values (Limma)
 
 gpl <- Table(getGEO("GPL14767"))
 ```
@@ -29,18 +29,18 @@ gpl <- Table(getGEO("GPL14767"))
 ## Tidying data
 
 ```{r}
-gse_data_frame <- as.data.frame(exp_data) |> 
+data_frame <- as.data.frame(exp_data) |> 
   rownames_to_column(var = "ID")
 
 gpl <- gpl |> 
   mutate(ID = as.character(ID))
 
-mirna_exp <- gse_data_frame |> 
+mirna_exp <- data_frame |> 
   left_join(gpl, by = "ID") |> 
   select( ,-1) |> 
   relocate(where(is.numeric), .after = where(is.character))
 
-metadata <- gse_data@phenoData@data
+metadata <- data@phenoData@data
 
 ```
 
@@ -49,16 +49,16 @@ metadata <- gse_data@phenoData@data
 ```{r}
 path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
 
-saveRDS(gse_data_frame, file = paste0(path, "/GSE_data/gse_data_load.RDs"))
+saveRDS(data_frame, file = paste0(path, "/data/data_load.RDs"))
 
 exp_data <- as.data.frame(exp_data)
-saveRDS(exp_data, file = paste0(path, "/GSE_data/gse_expressed_data.RDs"))
+saveRDS(exp_data, file = paste0(path, "/data/gse_expressed_data.RDs"))
 
-saveRDS(gpl, file = paste0(path, "/GSE_data/gse_chosen_meta_data.RDs"))
+saveRDS(gpl, file = paste0(path, "/data/gse_chosen_meta_data.RDs"))
 
-saveRDS(mirna_exp, file = paste0(path, "/GSE_data/gse_all_data.RDs"))
+saveRDS(mirna_exp, file = paste0(path, "/data/gse_all_data.RDs"))
 
-saveRDS(metadata, file = paste0(path, "/GSE_data/gse_all_meta_data.RDs"))
+saveRDS(metadata, file = paste0(path, "/data/gse_all_meta_data.RDs"))
 
 
 ```
@@ -239,12 +239,6 @@ saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_dat
 saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
 ```
 
----
-title: "TCGA_describe"
-format: html
-editor: visual
----
-
 ## Set Working directory
 
 ```{r setup}
@@ -356,8 +350,8 @@ rm(list = ls())
 
 ```{r}
 
-exp_gse_results <- readRDS("GSE_data/gse_expressed_data.RDs")
-mirna_exp <- readRDS("GSE_data/gse_all_data.RDs")
+exp_gse_results <- readRDS("data/gse_expressed_data.RDs")
+mirna_exp <- readRDS("data/gse_all_data.RDs")
 
 
 ```
