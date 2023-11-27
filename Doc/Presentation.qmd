@@ -117,8 +117,6 @@ miRNA_data_cancer <- retrieve_and_prepare_data(
 
 ## Data preprocess - TCGA (Ksenia)
 
-#### Pre-processing
-
 ```{r}
 library(tibble)
 ```
@@ -126,7 +124,7 @@ library(tibble)
 ```{r}
 #| eval: false
 #| echo: false
-own_path <- "/Users/mathildebechgaard/"
+own_path <- "/Users/kseniakirdey"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 ```
 
@@ -137,96 +135,38 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/")
 
 </font>
 
-```{r}
-#| eval: true
-#| echo: false
-own_path <- "/Users/mathildebechgaard/"
-miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_expression.RDS"))
-mRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_expression.RDS"))
++-------------------------------------+--------------------------------+
+|                                     |                                |
++=====================================+================================+
++-------------------------------------+--------------------------------+
 
-print(miRNA_data)
-```
-
-```{r}
-#| eval: true
-#| echo: false
-print(mRNA_data)
-```
-
-## Data augmentation - TCGA
-
-#### edgeR
+## Data augmentation - TCGA, edgeR
 
 <font size="6">
 
 -   Calculation of the normalization factors for the data (\_log) with `calcNormFactors` and imputation of NAs using means.
 
--   Creating a uniform edgeR analysis function.
+-   Running a "universal" edgeR differential analysis function with a quasi likelihood model.
 
 </font>
-
-```{css, echo=FALSE}
-.my_class1 {
-height: 300px;
-width: 1000px;
-}
-```
-
-```{r}
-#| class-source: my_class1
-#| classes: my_class1
-#| eval: false
-#| echo: false
-run_edgeR_analysis <- function(data_y,
-                               design_formula,
-                               metadata,
-                               feature_data) {
-  
-  design <- model.matrix(as.formula(design_formula),
-                         data = metadata)
-
-  # Set row names
-  rownames(design) <- data_y$samples[, 0]
-  
-  # Set row names
-  rownames(design) <- data_y$samples[, 0]
-
-  # Estimate dispersion
-  data_y <- estimateDisp(data_y, design)
-
-  # Fit model
-  fit <- glmQLFit(data_y, design, robust = TRUE)
-
-  # Likelihood ratio test
-  qlt <- glmQLFTest(fit)
-
-  # Getting top genes and saving table in the variable.
-  # The dimension of the original dataset is applied.
-  topgenes <- topTags(qlt, n = dim(feature_data)[[1]])
-
-  return(topgenes)
-}
-```
-
-## Data augmentation - TCGA
-
-#### edgeR
-
-Example of usage:
-
-```{r}
-#| eval: false
-#| echo: false
-run_edgeR_analysis(mRNA_y, "~ Status", metadata_id_patients_mRNA, mRNA_data)
-```
 
 Statistics table:
 
 ```{r}
 #| eval: true
 #| echo: false
-miRNA_top_genes_stat <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS") |> tibble()
+miRNA_top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS") |> tibble()
 miRNA_top_genes_stat
+```
+
+Final augmented dataset:
+
+```{r}
+#| eval: true
+#| echo: false
+
+miRNA_aug <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_aug.RDS"))
+miRNA_aug
 ```
 
 ## Results (All)
