@@ -15,11 +15,7 @@ library(ggplot2)
 
 ```{r}
 
-#two boxplots (male/female) per cancer stage
 
-patient_stage |> 
-  ggplot(mapping = aes(x = cancer_stage, fill = gender)) + facet.wrap(~ cancer_stage) +
-  geom_boxplot()
 ```
 
 ## Histogram
