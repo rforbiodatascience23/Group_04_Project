@@ -69,62 +69,27 @@ Hi
 
 ## Data retrieval - TCGA (Mathilde)
 
--   Setting path to /TCGA_data/\_raw folder
+<font size="6">
 
-    -   analyte.tsv & clinical.tsv
+-   Fetch analyte.tsv & clinical.tsv from raw\_/
 
     -   Obtain IDs of the patients for whom the RNA expression was registered
 
 -   Library ***TCGABiolinks*** is used to retrieve data from the GDC data portal
 
--   Retrieve and prepare function with GDCquery and GDCdownload
+    -   Function: retrieve_and_prepare()
+
+        -   GDCquery: Query to specify the data to get
+
+        -   GDCdownload: Downloading the samples from the query
+
+-   Example:
+
+</font>
 
 ```{r}
 #| eval: false
-#| echo: false
-retrieve_and_prepare_data <- function(
-  project,
-  data_category,
-  data_type,
-  workflow_type,
-  id_cancer_patients,
-  directory_prefix,
-  use_prepare = TRUE
-) {
-  # Query to specify the data to get
-  query <- GDCquery(
-    project = project,
-    data.category = data_category,
-    data.type = data_type,
-    workflow.type = workflow_type,
-    barcode = id_cancer_patients
-  )
-
-  # Downloading the samples
-  GDCdownload(
-    query = query,
-    method = "api",
-    directory = paste0(directory_prefix, "_", project),
-    files.per.chunk = 50
-  )
-
-  # Preparing data in case of miRNAs
-  if (use_prepare) {
-    data <- GDCprepare(query, directory = paste0(directory_prefix, "_", project))
-  } else {
-    data <- NULL
-  }
-  return(data)
-}
-```
-
-## Data retrieval - TCGA (Mathilde)
-
--   Fetch miRNA data:
-
-```{r}
-#| eval: false
-#| echo: false
+#| echo: true
 miRNA_data_cancer <- retrieve_and_prepare_data(
   project = "TCGA-COAD",
   data_category = "Transcriptome Profiling",
@@ -135,89 +100,28 @@ miRNA_data_cancer <- retrieve_and_prepare_data(
 )
 ```
 
--   Fetch mRNA data:
+<font size="6">
 
-```{r}
-#| eval: false
-#| echo: false
-mRNA_all <- retrieve_and_prepare_data(
-  project = "TCGA-COAD",
-  data_category = "Transcriptome Profiling",
-  data_type = "Gene Expression Quantification",
-  workflow_type = "STAR - Counts",
-  id_cancer_patients = id_cancer_patients,
-  directory_prefix = "samples_mRNA"
-)
-```
+-   miRNA data - 2 separate dataframes
 
--   Files were saved to TCGA_data/
+-   mRNA data - ***Large*** ***SummarizedExperiment***
 
-## Data tidying - TCGA (Mathilde)
-
--   miRNA data:
-
-Picture instead
-
-```{r}
-#| eval: false
-#| echo: false
-miRNA_data <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/miRNA_data_load.RDS")
-miRNA_data
-```
-
-```{r}
-#| eval: false
-#| echo: false
-miRNA_metadata <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/miRNA_metadata_load.RDS")
-miRNA_metadata
-```
-
-## Data tidying - TCGA (Mathilde)
-
--   mRNA data:
-
-Picture instead
-
-```{r}
-#| eval: false
-#| echo: false
-mRNA_all <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_data/mRNA_all_load.RDS")
-mRNA_all
-```
-
--   Library ***SummarizedExperiment***
-
-```{r}
-#| eval: false
-#| echo: false
-mRNA_data <- as.data.frame(assay(mRNA_all))
-mRNA_data
-```
-
-```{r}
-#| eval: false
-#| echo: false
-mRNA_metadata <- as.data.frame(colData(mRNA_all))
-mRNA_metadata
-```
+</font>
 
 ## Data description - TCGA (Mathilde)
 
--   Number og Cancer vs. Normal Samples
+<font size="6">
 
-![](images/cancer_vs_normal.png){fig-align="center"}
+-   Data tidying -
+    -   "*Like families, tidy datasets are all alike but every messy dataset is messy in its own way*"
+-   Data visualizations:
+    -   Number of cancer vs. normal samples
+    -   Gender distribution
+    -   Pathological cancer stages
 
-## Data description - TCGA (Mathilde)
+</font>
 
--   Gender distribution
-
-![](images/gender_distribution.png){fig-align="center" width="477"}
-
-## Data description - TCGA (Mathilde)
-
--   Cancer stages
-
-![](images/cancer_stages.png){fig-align="center" width="473"}
+![](images/cancer_stages.png){fig-align="center" width="388"}
 
 ## Data preprocess - TCGA (Ksenia)
 
