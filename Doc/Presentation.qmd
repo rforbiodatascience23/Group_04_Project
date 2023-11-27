@@ -32,8 +32,6 @@ format:
 
 -   Data was already standardized
 
-<<<<<<< HEAD
-=======
 ## Data description - GSE
 
 |                                         |                                  |
@@ -44,7 +42,6 @@ format:
 
 -   The patients are usually elderly people
 
->>>>>>> be9e33dea1020498b5dd573518ba724669e62318
 ## Data analysis - GSE
 
 <font size="6">
