@@ -7,7 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+own_path <- "/Users/kseniakirdey"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 ```
 
@@ -34,44 +34,45 @@ mRNA_data <- mRNA_data |>
   tibble()
 ```
 
+Function to choose top `n_genes` from the datasets.
+
 ```{r}
-top_20 <- top_genes_stat |>
+top_genes_choosing <- function(stat_data, 
+                             id_column, 
+                             n_genes,
+                             expr_data) {
+  top <- stat_data |>
   mutate(diff_col = case_when(
     logFC > 0.6 & FDR < 0.05 ~ "UP",
     logFC < -0.6 & FDR < 0.05 ~ "DOWN",
     TRUE ~ "NO"
   )) |> 
   arrange(desc(abs(logFC))) |> 
-  select(miRNA_ID) |>
-  head(n = 20) 
-
-top_20_genes <- top_20$miRNA_ID
+  select({{ id_column }}) |>
+  head(n_genes)
+  
+  top <- top |> pull({{ id_column }})
+  
+  top_expression <- expr_data |>
+  filter({{ id_column }} %in% top) |>
+  head(n_genes)
+  
+  return(top_expression)
+}
 ```
 
 ```{r}
-miRNA_top_20_expression <- miRNA_data |>
-  filter(miRNA_ID %in% top_20_genes) |>
-  head(20)
+miRNA_top_20_expression <- top_genes_choosing(top_genes_stat_miRNA, 
+                   id_column = miRNA_ID, 
+                   n_genes = 20, 
+                   expr_data = miRNA_data)
 ```
 
 ```{r}
-top_20_mRNA <- top_genes_stat_mRNA |>
-  mutate(diff_col = case_when(
-    logFC > 0.6 & FDR < 0.05 ~ "UP",
-    logFC < -0.6 & FDR < 0.05 ~ "DOWN",
-    TRUE ~ "NO"
-  )) |> 
-  arrange(desc(abs(logFC))) |> 
-  select(genes) |>
-  head(n = 20) 
-
-top_20_mRNA <- top_20_mRNA$genes
-```
-
-```{r}
-mRNA_top_20_expression <- mRNA_data |>
-  filter(genes %in% top_20_mRNA) |>
-  head(20)
+mRNA_top_20_expression <- top_genes_choosing(top_genes_stat_mRNA, 
+                   id_column = genes, 
+                   n_genes = 20, 
+                   expr_data = mRNA_data)
 ```
 
 ```{r}
@@ -82,5 +83,5 @@ saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/Resu
 ## Clean the environment
 
 ```{r}
-
+rm(list = ls())
 ```

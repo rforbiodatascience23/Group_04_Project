@@ -8,7 +8,8 @@ editor: visual
 
 ```{r setup}
 own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_Data/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
 ## Load Libraries
@@ -21,9 +22,9 @@ library(ggrepel)
 ## Fetch dataset
 
 ```{r}
-miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
-top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS"))
-miRNA_meta <- readRDS(paste0(own_path, "/group_04_project/data/mRNA_metadata_clean.RDS"))
+miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_aug.RDS"))
+top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/miRNA_top_genes_stat.RDS"))
+miRNA_meta <- readRDS(paste0(own_path, "/group_04_project/TCGA_Data/mRNA_metadata_clean.RDS"))
 ```
 
 Subsetting top 15 "log Fold Changed" genes for a better visualisation:
@@ -48,14 +49,19 @@ miRNA_meta <- miRNA_meta |>
     ajcc_pathologic_stage == "Stage IIIB" | ajcc_pathologic_stage == "Stage IIIC" ~ "Stage III",
     ajcc_pathologic_stage == "Stage IV" | ajcc_pathologic_stage == "Stage IVB" ~ "Stage IV"
   )) |>
-  select(-ajcc_pathologic_stage) |> tibble() |>
-  rename(TCGA_ID = "sample")
+  select(-ajcc_pathologic_stage) |> 
+  tibble() |>
+  select(-sample_submitter_id) |>
+  dplyr::rename(TCGA_ID = "sample")
 ```
+
+## Comparison of the expression between the stages
 
 ```{r}
 miRNA_meta |> 
   select(TCGA_ID, Stage) |> 
   right_join(miRNA_log_long, by = 'TCGA_ID') |>
+  set_tissue_status() |>
   ggplot(aes(x = Stage,
          y = log_reads,
          col = Status)) +
@@ -67,7 +73,7 @@ miRNA_meta |>
        y = "Log2 expression")
 ```
 
-## First graph
+## General comparison of the expression between cancer and normal tissues
 
 -   Ideally, the samples should be taken from cancer and normal tissues of the same patients to get a proper overview of the expression difference. In our case, not all the samples had this comparison. Therefore, to make the conclusions based on the plots more precise, one should properly collect the expression data.
 
@@ -76,6 +82,7 @@ miRNA_meta |>
 ```{r}
 miRNA_log_long |>
   filter(miRNA_ID %in% top_genes) |>
+  set_tissue_status() |>
   ggplot(aes(x = miRNA_ID,
              y = log_reads,
              col = Status)) +
@@ -143,8 +150,5 @@ top_genes_stat |>
 ## Clean environment
 
 ```{r}
-rm(miRNA_log_long_full)
-rm(top_genes_stat)
-rm(top_genes_stat_subset)
-rm(top_genes)
+rm(list = ls())
 ```
