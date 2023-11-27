@@ -61,7 +61,7 @@ GSE_miRNA_heatmap <- ggplot(data = melt(GSE_miRNA), aes(x = Var2, y = Var1, fill
   labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_blank())
-GSE_miRNA_heatmap
+GSE_miRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
 ```
 
 ## miRNA Heatmap
@@ -72,7 +72,7 @@ TCGA_miRNA_heatmap <- ggplot(data = melt(TCGA_miRNA), aes(x = Var2, y = Var1, fi
   labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_blank())
-TCGA_miRNA_heatmap
+TCGA_miRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
 ```
 
 ## mRNA Heatmap
@@ -83,7 +83,7 @@ TCGA_mRNA_heatmap <- ggplot(data = melt(TCGA_mRNA), aes(x = Var2, y = Var1, fill
   labs(x = "Genes", y = "Patients", title = "Heatmap of Expression Values") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_blank())
-TCGA_mRNA_heatmap
+TCGA_mRNA_heatmap + scale_fill_gradient(limits = c(-10, 15))
 ```
 
 ## Save plots
