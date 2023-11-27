@@ -14,7 +14,7 @@ format:
 
 ## Introduction
 
-![](images/Introduction - Article.png)
+![](images/Introduction%20-%20Article.png)
 
 -   CRC has the 3^rd^ highest mortality rate
 
@@ -31,7 +31,7 @@ format:
 -   Both primary data and meta data was loaded and data was already standardized, though we still cleaned the data further
 
 |                                                      |                                               |
-|---------------------------------------|---------------------------------|
+|------------------------------------------------------|-----------------------------------------------|
 | ![](images/gse_gender_distribution.png){width="257"} | ![](images/cancer_frequency.png){width="266"} |
 
 ## Data analysis - GSE
@@ -179,7 +179,7 @@ miRNA_aug
 </font>
 
 | TCGA mRNA                   | TCGA miRNA                   | GSE miRNA                    |
-|------------------------|------------------------|------------------------|
+|-----------------------------|------------------------------|------------------------------|
 | ![](images/mrna_vol-01.png) | ![](images/mirna_vol-02.png) | ![](images/gse_vol_plot.png) |
 
 ## Results (All)
@@ -191,7 +191,7 @@ miRNA_aug
 </font>
 
 | TCGA mRNA                            | TCGA miRNA                            | GSE miRNA                            |
-|------------------------|-------------------------|------------------------|
+|--------------------------------------|---------------------------------------|--------------------------------------|
 | ![](images/TCGA_mRNA_heatmap-01.png) | ![](images/TCGA_miRNA_heatmap-01.png) | ![](images/GSE_miRNA_heatmap-01.png) |
 
 ## Conclusions
