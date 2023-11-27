@@ -38,34 +38,24 @@ Hi
 
 ## Data analysis - GSE
 
+<font size="6">
+
 -   Log2 Transformation:
-    -   Log2 transformation was performed for the analysis of differentially expressed genes.
     -   Data points below 0 were removed and converted to NaN.
 -   Design Matrix for Tumor vs Normal Comparison:
-    -   A design matrix was created for the Tumor vs Normal comparison.
-    -   The first 11 samples were allocated to Normal, and the rest were considered as Tumor.
 -   Limit Expressed Genes Based on Median Expression:
     -   Only genes with above-median expression in 1/3 of the samples were retained.
 -   Linear Model Fitting and Contrasts:
     -   A linear model was fitted.
     -   Contrasts were created between the two groups (Tumor and Normal).
     -   Empirical Bayes' step was performed to obtain statistics and p-values.
-
-## 
-
 -   Array Weights for Model Fitting:
     -   An array of weights was created to fit the data into the model.
 -   Empirical Bayes' Step (Again):
     -   The empirical Bayes' step was applied again with the array weights.
--   Results Integration and Volcano Plotting:
-    -   Results of the analysis were added to the dataset.
-    -   Additional columns were created for volcano plotting:
-        -   'diffexpressed' with values: NO, UP, and DOWN.
-        -   'label' with GENE_ID's of overexpressed genes.
--   File Generation for Highly Expressed Genes:
-    -   A file containing only highly expressed genes was generated for merging purposes.
--   Top 20 Overexpressed Genes Expression File:
-    -   A file containing expression data for the top 20 overexpressed genes was generated.
+-   Tidying data
+
+</font>
 
 ## Data retrieval - TCGA (Mathilde)
 
@@ -121,7 +111,9 @@ miRNA_data_cancer <- retrieve_and_prepare_data(
 
 </font>
 
-![](images/cancer_stages.png){fig-align="center" width="388"}
+|                                     |                               |
+|-------------------------------------|-------------------------------|
+| ![](images/gender_distribution.png) | ![](images/cancer_stages.png) |
 
 ## Data preprocess - TCGA (Ksenia)
 
@@ -237,9 +229,13 @@ miRNA_top_genes_stat <- readRDS("/Users/mathildebechgaard/group_04_project/TCGA_
 miRNA_top_genes_stat
 ```
 
-## 
-
 ## Results (All)
+
+-   Results Integration and Volcano Plotting:
+    -   Results of the analysis were added to the dataset.
+    -   Additional columns were created for volcano plotting:
+        -   'diffexpressed' with values: NO, UP, and DOWN.
+        -   'label' with GENE_ID's of overexpressed genes.
 
 ```{r}
 
