@@ -1,0 +1,104 @@
+---
+title: "TCGA_data_retrieval"
+format: html
+editor: visual
+---
+
+## Data retrieval:
+
+See the README.md file.
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/kseniakirdey"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/_raw/"))
+source(paste0(own_path, "/group_04_project/project_functions.R"))
+```
+
+## Loading libraries
+
+```{r}
+library(TCGAbiolinks)
+library(tidyverse)
+library(stringr)
+```
+
+Obtaining the IDs of the patients for whom the RNA expression was registered:
+
+```{r}
+analyte <- read.delim("analyte.tsv")
+
+RNA_samples <- subset(analyte, analyte_type == "RNA")
+
+RNA_samples <- RNA_samples |>
+  mutate(tissue_type = str_sub(sample_submitter_id, -3, -3)) |>
+  mutate(
+    type = case_when(tissue_type == 0 ~ "cancer",
+                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
+                     .default = "other")
+  ) |>
+  arrange(type)
+```
+
+## Obtaining the IDs of interest
+
+```{r}
+id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 50)
+id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 50)
+id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
+```
+
+## Retrieving datasets from TCGA
+
+### miRNA
+
+```{r}
+miRNA_data <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+## Fetch miRNA metadataset
+
+```{r}
+miRNA_metadata <- read.delim("clinical.tsv")
+```
+
+### mRNA
+
+```{r}
+mRNA_all <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "Gene Expression Quantification",
+  workflow_type = "STAR - Counts",
+  id_cancer_patients = id_cancer_patients,
+  directory_prefix = "samples_mRNA"
+)
+```
+
+## References
+
+```{r}
+print(citation("TCGAbiolinks"), bibtex=TRUE)
+```
+
+## Save data files
+
+```{r}
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
+saveRDS(mRNA_all, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+```
+
+## Clean environment
+
+```{r}
+rm(list = ls())
+```
