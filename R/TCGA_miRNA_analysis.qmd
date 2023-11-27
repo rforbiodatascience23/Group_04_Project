@@ -70,7 +70,11 @@ miRNA_box <- miRNA_meta |>
                                 "normal" = "#13b3ba")) + 
   labs(title = "Boxplot comparison of total miRNA expression between four cancer stages", color = "Tissue Type",
        x = "Cancer stage",
-       y = "Log2 expression")
+       y = "Log2 expression") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
 ```
 
 ## General comparison of the expression between cancer and normal tissues
@@ -97,7 +101,11 @@ miRNA_expression <- miRNA_log_long |>
     hjust = 1),
     plot.title = element_text(
       size = 12, 
-      angle = 0))
+      angle = 0)) +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
 ```
 
 ## Volcano plot
@@ -144,7 +152,11 @@ mirna_vol <- top_genes_stat |>
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_text_repel(data = top_genes_stat_subset,
                   aes(label = miRNA_ID),
-                      color = "black")
+                      color = "black") +
+  theme(plot.title = element_text(size=20),
+        axis.title = element_text(size=15), 
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=20))
 ```
 
 ## Saving the plot

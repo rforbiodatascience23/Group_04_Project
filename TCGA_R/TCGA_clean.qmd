@@ -1,0 +1,98 @@
+---
+title: "TCGA_clean"
+format: html
+editor: visual
+---
+
+## Set Working directory
+
+```{r setup}
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
+```
+
+## Load Libraries
+
+```{r}
+library(dplyr)
+library(SummarizedExperiment)
+```
+
+## Fetch dataset
+
+```{r}
+mRNA_all <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/mRNA_all_load.RDS"))
+miRNA_data <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_load.RDS"))
+miRNA_metadata <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_load.RDS"))
+```
+
+## Tidy miRNA data
+
+```{r}
+miRNA_data <- miRNA_data |>
+  select(-starts_with("cross-mapped")) |>
+  select(-starts_with("reads_per_million")) |>
+  rename_with(~gsub("^read_count_", "", .x), starts_with("read_count_")) |>
+  rename_all(~ substr(., 1, 16))
+```
+
+## Tidy miRNA metadata
+
+```{r}
+miRNA_metadata <- miRNA_metadata |>
+  filter(case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12)) |>
+  mutate(across(everything(), ~ifelse(. == "'--", NA, .))) |>
+  select(-where(~all(is.na(.))),-treatment_type, -treatment_or_therapy)
+
+miRNA_metadata <- unique(miRNA_metadata)
+
+miRNA_metadata <- miRNA_metadata |>
+  mutate(case_submitter_id = ifelse(
+    case_submitter_id %in% substr(names(miRNA_data)[-1], 1, 12),
+    names(miRNA_data)[-1],
+    case_submitter_id))
+```
+
+## Alter column data types
+
+```{r}
+miRNA_metadata <- miRNA_metadata |>
+  mutate(
+    age_at_index = as.numeric(age_at_index),
+    age_at_diagnosis = as.numeric(age_at_diagnosis),
+    days_to_birth = as.numeric(days_to_birth),
+    days_to_death = as.numeric(days_to_death),
+    days_to_diagnosis = as.numeric(days_to_diagnosis),
+    days_to_last_follow_up = as.numeric(days_to_last_follow_up),
+    year_of_birth = as.numeric(year_of_birth),
+    year_of_death = as.numeric(year_of_death),
+    year_of_diagnosis = as.numeric(year_of_diagnosis)
+         )
+```
+
+## Tidy mRNA data
+
+```{r}
+mRNA_data <- as.data.frame(assay(mRNA_all))
+```
+
+## Tidy mRNA metadataset
+
+```{r}
+mRNA_metadata <- as.data.frame(colData(mRNA_all))
+```
+
+## Save clean data files
+
+```{r}
+saveRDS(miRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_data_clean.RDS"))
+saveRDS(miRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/miRNA_metadata_clean.RDS"))
+saveRDS(mRNA_data, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_data_clean.RDS"))
+saveRDS(mRNA_metadata, file = paste0(own_path, "/group_04_project/TCGA_data/mRNA_metadata_clean.RDS"))
+```
+
+## Clean environment
+
+```{r}
+rm(list = ls())
+```
