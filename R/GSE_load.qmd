@@ -1,12 +1,13 @@
 ---
-<<<<<<< HEAD
-title: "GSE_data_retrival_and_processing"
-=======
 title: "GSE_load"
->>>>>>> deb3e058668d85f8c6cff5cae54fc32b4c812b59
 format: html
 editor: visual
 ---
+
+```{r setup}
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project/group_04_project/"
+knitr::opts_knit$set(root.dir = paste0(own_path, "group_04_project/data/"))
+```
 
 ## Getting libraries
 
@@ -15,7 +16,6 @@ library(GEOquery)
 library(limma)
 library(tidyverse)
 library(edgeR)
-
 ```
 
 ## Loading data
@@ -43,14 +43,11 @@ mirna_exp <- gse_data_frame |>
   relocate(where(is.numeric), .after = where(is.character))
 
 metadata <- gse_data@phenoData@data
-
 ```
 
 ## Saving datasets
 
 ```{r}
-path <- "C:/Users/Laila/Desktop/R for Bio Data Science/group_04_project"
-
 saveRDS(gse_data_frame, file = paste0(path, "/data/gse_data_load.RDs"))
 
 exp_data <- as.data.frame(exp_data)
@@ -61,6 +58,4 @@ saveRDS(gpl, file = paste0(path, "/data/gse_chosen_meta_data.RDs"))
 saveRDS(mirna_exp, file = paste0(path, "/data/gse_all_data.RDs"))
 
 saveRDS(metadata, file = paste0(path, "/data/gse_all_meta_data.RDs"))
-
-
 ```
