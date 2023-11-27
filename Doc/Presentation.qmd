@@ -34,7 +34,9 @@ format:
 
 ## Data description - GSE
 
-Hi
+|                                         |                                  |
+|-----------------------------------------|----------------------------------|
+| ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png) |
 
 ## Data analysis - GSE
 
