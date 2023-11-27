@@ -338,8 +338,6 @@ ggsave(file.path("../results/images/", "cancer_stages.png"), cancer_stages, widt
 
 ## GSE
 
-## Loading files
-
 ```{r}
 
 exp_gse_results <- readRDS("data/gse_expressed_data.RDs")
@@ -495,7 +493,7 @@ top_20_genes <- high_expressed_genes |>
 
 ```
 
-## Saving Files
+### Saving Files
 
 ```{r}
 
@@ -511,7 +509,7 @@ ggsave(file.path(path, "gse_vol_plot.pdf"), plot = gse_vol, width = 14, height =
 
 ## miRNA
 
-## Set Working directory
+### Set Working directory
 
 ```{r setup}
 own_path <- "/Users/mathildebechgaard"
@@ -519,7 +517,7 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
 
-## Fetch dataset
+### Fetch dataset
 
 ```{r}
 miRNA_log_long <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
@@ -883,18 +881,7 @@ saveRDS(mRNA_top_20_expression, file = paste0(own_path, "/group_04_project/resul
 saveRDS(miRNA_top_20_expression, file = paste0(own_path, "/group_04_project/results/miRNA_top_expression.RDs"))
 ```
 
----
-title: "TCGA_Heatmap"
-format: html
-editor: visual
----
-
-## Set Working directory
-
-```{r setup}
-own_path <- "/Users/mathildebechgaard"
-knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
-```
+## Heatmap
 
 ## Fetch dataset
 
