@@ -7,8 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard"
-
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
@@ -49,14 +48,8 @@ IDs <- tibble(TCGA_ID = column_names) # e.g., TCGA-F4-6854-01A
 
 ```{r}
 metadata_id_patients_miRNA <- IDs |>
-  mutate(tissue_type = str_sub(TCGA_ID, -3, -3)) |>
-  mutate(
-    Status = case_when(tissue_type == 0 ~ "cancer",
-                     (tissue_type == 1 | tissue_type == 2) ~ "normal",
-                     .default = "other")
-  ) |>
-  arrange(Status) |>
-  select(-tissue_type)
+  set_tissue_status() |>
+  arrange(Status)
 ```
 
 Log2 transformation, and handling NAs. If all values are missing the function replaces the entire column with **`NA`**. If there is at least one non-missing value in a column, it removes the missing values from that column using **`na.omit().`**
@@ -160,7 +153,7 @@ miRNA_log_long <- pivot_and_filter(miRNA_log, miRNA_ID, miRNA_top_genes)
 
 ```{r}
 mRNA_metadata <- mRNA_metadata |>
-  rename("TCGA_ID" = barcode)
+  dplyr::rename("TCGA_ID" = barcode)
 ```
 
 Selecting columns of interest for the analysis.
@@ -176,17 +169,14 @@ Selecting columns of interest for the analysis.
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
-  rename("TCGA_ID" = case_submitter_id)
+  dplyr::rename("TCGA_ID" = case_submitter_id)
 ```
 
 ```{r}
 miRNA_metadata <- miRNA_metadata |>
   select(TCGA_ID, ajcc_pathologic_stage,
          gender, age_at_index, days_to_death) |>
-  mutate(tissue_type = str_sub(TCGA_ID, -3, -3),
-         Status = case_when(tissue_type == 0 ~ "cancer",
-                            (tissue_type == 1 | tissue_type == 2) ~ "normal",
-                            .default = "other"))
+  set_tissue_status()
 ```
 
 ## Gene names as row names for expression datasets

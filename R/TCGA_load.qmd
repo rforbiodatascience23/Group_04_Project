@@ -11,7 +11,7 @@ See the README.md file.
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/mathildebechgaard"
+own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/_raw/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```
@@ -44,8 +44,8 @@ RNA_samples <- RNA_samples |>
 ## Obtaining the IDs of interest
 
 ```{r}
-id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 50)
-id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 50)
+id_cancer_patients_normal <- get_sample_ids(RNA_samples, sample_type = "normal", num_samples = 100)
+id_cancer_patients_cancer <- get_sample_ids(RNA_samples, sample_type = "cancer", num_samples = 100)
 id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
 ```
 
@@ -54,14 +54,29 @@ id_cancer_patients <- c(id_cancer_patients_normal, id_cancer_patients_cancer)
 ### miRNA
 
 ```{r}
-miRNA_data <- retrieve_and_prepare_data(
+miRNA_data_normal <- retrieve_and_prepare_data(
   project = "TCGA-COAD",
   data_category = "Transcriptome Profiling",
   data_type = "miRNA Expression Quantification",
   workflow_type = "BCGSC miRNA Profiling",
-  id_cancer_patients = id_cancer_patients,
+  id_cancer_patients = id_cancer_patients_normal,
   directory_prefix = "samples_miRNA"
 )
+```
+
+```{r}
+miRNA_data_cancer <- retrieve_and_prepare_data(
+  project = "TCGA-COAD",
+  data_category = "Transcriptome Profiling",
+  data_type = "miRNA Expression Quantification",
+  workflow_type = "BCGSC miRNA Profiling",
+  id_cancer_patients = id_cancer_patients_cancer,
+  directory_prefix = "samples_miRNA"
+)
+```
+
+```{r}
+miRNA_data <- bind_rows(miRNA_data_cancer, miRNA_data_normal)
 ```
 
 ## Fetch miRNA metadataset
