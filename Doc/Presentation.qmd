@@ -188,7 +188,7 @@ miRNA_aug
 
 | TCGA mRNA                   | TCGA miRNA                   | GSE miRNA                    |
 |------------------------|------------------------|------------------------|
-| ![](images/mrna_vol-01.png) | ![](images/mirna_vol-01.png) | ![](images/gse_vol_plot.png) |
+| ![](images/mrna_vol-01.png) | ![](images/mirna_vol-02.png) | ![](images/gse_vol_plot.png) |
 
 ## Results (All)
 
