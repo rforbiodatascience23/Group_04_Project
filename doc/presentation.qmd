@@ -14,7 +14,7 @@ format:
 
 ## Introduction
 
-## ![](images/Introduction - Article.png)
+![](images/Introduction - Article.png)
 
 -   CRC has the 3^rd^ highest mortality rate
 
