@@ -34,9 +34,10 @@ format:
 
 ## Data description - GSE
 
-|                                         |                                  |
+|                                         |                                                 |
 |---------------------------------------|---------------------------------|
-| ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png) |
+| **miRNA from the GEO data**             | **Frequency of the different states of cancer** |
+| ![](images/gse_gender_distribution.png) | ![](images/cancer_frequency.png)                |
 
 -   Majority of data comes from patients with earlier stage cancer
 
@@ -63,7 +64,7 @@ format:
 
 </font>
 
-## Data retrieval - TCGA (Mathilde)
+## Data retrieval - TCGA
 
 <font size="6">
 
@@ -104,7 +105,7 @@ miRNA_data_cancer <- retrieve_and_prepare_data(
 
 </font>
 
-## Data description - TCGA (Mathilde)
+## Data description - TCGA
 
 <font size="6">
 
@@ -117,11 +118,12 @@ miRNA_data_cancer <- retrieve_and_prepare_data(
 
 </font>
 
-|                                     |                               |
-|-------------------------------------|-------------------------------|
-| ![](images/gender_distribution.png) | ![](images/cancer_stages.png) |
+|                                        |                                                   |
+|----------------------------------------|---------------------------------------------------|
+| **Distribution of Age by Gender**      | **Frequency of AJCC Pathologic Stages by Status** |
+| ![](images/gender_distribution-01.png) | ![](images/cancer_stages.png)                     |
 
-## Data preprocess - TCGA (Ksenia)
+## Data preprocess - TCGA
 
 ```{r}
 library(tibble)
@@ -141,9 +143,10 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 
 </font>
 
-|                           |                          |
-|---------------------------|--------------------------|
-| ![](images/miRNA_log.png) | ![](images/mRNA_log.png) |
+|                                  |                                 |
+|----------------------------------|---------------------------------|
+| **Log2 transformed data, miRNA** | **Log2 transformed data, mRNA** |
+| ![](images/miRNA_log.png)        | ![](images/mRNA_log.png)        |
 
 ## Data augmentation - TCGA, edgeR
 
@@ -155,25 +158,9 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 
 </font>
 
-Statistics table:
-
-```{r}
-#| eval: true
-#| echo: false
-own_path <- "/Users/mathildebechgaard"
-miRNA_top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_top_genes_stat.RDS")) |> tibble()
-miRNA_top_genes_stat
-```
-
-Final augmented dataset:
-
-```{r}
-#| eval: true
-#| echo: false
-
-miRNA_aug <- readRDS(paste0(own_path, "/group_04_project/data/miRNA_aug.RDS"))
-miRNA_aug
-```
+| Statistics table                 | Final \_aug dataset             |
+|----------------------------------|---------------------------------|
+| ![](images/stat_table_mirna.png) | ![](images/mirna_aug_table.png) |
 
 ## Results (All)
 
@@ -186,24 +173,26 @@ miRNA_aug
 
 </font>
 
-| TCGA mRNA                   | TCGA miRNA                   | GSE miRNA                    |
+| TCGA mRNA                | TCGA miRNA                | GSE miRNA                    |
 |------------------------|------------------------|------------------------|
-| ![](images/mrna_vol-01.png) | ![](images/mirna_vol-02.png) | ![](images/gse_vol_plot.png) |
+| ![](images/mrna_vol.png) | ![](images/mirna_vol.png) | ![](images/gse_vol_plot.png) |
 
-## Results (All)
+## Results
 
 <font size="6">
 
--   Heatmap:
+-   Heatmaps:
 
 </font>
 
-| TCGA mRNA                            | TCGA miRNA                            | GSE miRNA                            |
+| TCGA mRNA                         | TCGA miRNA                         | GSE miRNA                         |
 |------------------------|-------------------------|------------------------|
-| ![](images/TCGA_mRNA_heatmap-01.png) | ![](images/TCGA_miRNA_heatmap-01.png) | ![](images/GSE_miRNA_heatmap-01.png) |
+| ![](images/TCGA_mRNA_heatmap.png) | ![](images/TCGA_miRNA_heatmap.png) | ![](images/GSE_miRNA_heatmap.png) |
 
 ## Conclusions
 
--   The TCGA and GSE datasets have different stages, and the data we used has a different sample size in each stage.
+-   Although we were able to follow the article's instructions, there are significant differences in our results. It might be brought on by some extra measures taken during data preprocessing, or by the authors' sparse information. It would be wise to get in touch with the authors to inquire further about preprocessing and data retrieval.
 
--   Although we were able to follow the article's instructions, there are significant differences in our results. It might be brought on by some extra measures taken during data preprocessing, or by the authors' sparse information. It would be wise to get in touch with the authors to inquire further about preprocessing and data retrieval. Overall, our analysis was carried out accurately, and the results did not indicate any grave errors. In addition data we used has different amount of sample in each stages, and stages differ between TCGA and GSE datasets
+-   Overall, our analysis was carried out accurately, and the results did not indicate any grave errors.
+
+-   In addition, data we used has different amount of sample in each stages, and stages differ between TCGA and GSE datasets
