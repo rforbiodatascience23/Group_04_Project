@@ -7,7 +7,7 @@ editor: visual
 ## Set Working directory
 
 ```{r setup}
-own_path <- "/Users/kseniakirdey/Desktop/DTU/R_for_bio_data_science/lab_10_Project"
+own_path <- "/Users/mathildebechgaard"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/data/"))
 source(paste0(own_path, "/group_04_project/project_functions.R"))
 ```

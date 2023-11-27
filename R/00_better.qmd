@@ -19,7 +19,6 @@ setwd(scripts_directory)
 # List all Quarto files in the directory
 qmd_files <- list.files(pattern = "\\.qmd$", full.names = TRUE)
 qmd_files <- qmd_files[-1]
-qmd_files <- qmd_files[-1]
 
 # Output HTML file
 output_html <- "combined_output.html"
