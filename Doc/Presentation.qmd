@@ -124,7 +124,7 @@ library(tibble)
 ```{r}
 #| eval: false
 #| echo: false
-own_path <- "/Users/kseniakirdey"
+own_path <- "/Users/mathildebechgaard"
 knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/"))
 ```
 
@@ -135,10 +135,9 @@ knitr::opts_knit$set(root.dir = paste0(own_path, "/group_04_project/TCGA_data/")
 
 </font>
 
-+-------------------------------------+--------------------------------+
-|                                     |                                |
-+=====================================+================================+
-+-------------------------------------+--------------------------------+
+|                           |                          |
+|---------------------------|--------------------------|
+| ![](images/miRNA_log.png) | ![](images/mRNA_log.png) |
 
 ## Data augmentation - TCGA, edgeR
 
@@ -155,7 +154,8 @@ Statistics table:
 ```{r}
 #| eval: true
 #| echo: false
-miRNA_top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS") |> tibble()
+own_path <- "/Users/mathildebechgaard"
+miRNA_top_genes_stat <- readRDS(paste0(own_path, "/group_04_project/TCGA_data/miRNA_top_genes_stat.RDS")) |> tibble()
 miRNA_top_genes_stat
 ```
 
